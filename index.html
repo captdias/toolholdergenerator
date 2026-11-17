@@ -1,0 +1,2539 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pegboard Organizer</title>
+    <meta name="description" content="Interactive 2D pegboard layout planner and 3D inspection tool for custom tool holders." />
+    <meta property="og:title" content="Pegboard Organizer" />
+    <meta property="og:description" content="Interactive 2D pegboard layout planner and 3D inspection tool for custom tool holders." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Fonts: Plus Jakarta Sans + JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+            colors: {
+              navy: {
+                950: '#08101b',
+                900: '#0b1523',
+                850: '#0f1c2e',
+                800: '#132338',
+                750: '#182b44',
+                700: '#1f3654',
+                600: '#2b476b',
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- React 18 & Babel Standalone CDN -->
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.2/babel.min.js"></script>
+
+    <!-- Three.js r169 (with OrbitControls, STLExporter, RoomEnvironment) via Import Map -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script>
+      (function () {
+        var mod = document.createElement('script');
+        mod.type = 'module';
+        mod.textContent = [
+          "import * as THREE from 'three';",
+          "import { OrbitControls } from 'three/addons/controls/OrbitControls.js';",
+          "import { STLExporter } from 'three/addons/exporters/STLExporter.js';",
+          "import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';",
+          "window.THREE_KIT = { THREE, OrbitControls, STLExporter, RoomEnvironment };",
+          "window.dispatchEvent(new Event('three-kit-ready'));",
+        ].join('\n');
+        document.head.appendChild(mod);
+      })();
+    </script>
+
+    <style>
+      html,
+      body,
+      #root {
+        height: 100%;
+        margin: 0;
+        background-color: #0b1523;
+        color: #f1f5f9;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Custom dark scrollbar */
+      ::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0b1523;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #233854;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #335077;
+      }
+
+      .tabular-nums {
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media print {
+        body {
+          background: #ffffff !important;
+          color: #0f172a !important;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="overflow-hidden select-none">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+      // ============================================================================
+      // 1. CONSTANTS, TOOL CATALOG & DEFAULT WORKSPACE STATE
+      // ============================================================================
+
+      const STORAGE_KEY = 'pegboard_organizer_state_v1';
+
+      const BOARD_COLORS = [
+        { id: 'slate', name: 'Slate Steel', fill: '#273a4c', hole: '#0c1522', rim: '#3b536b' },
+        { id: 'charcoal', name: 'Matte Charcoal', fill: '#1f2937', hole: '#090d14', rim: '#374151' },
+        { id: 'cobalt', name: 'Workshop Navy', fill: '#1b314d', hole: '#08121f', rim: '#2f507a' },
+        { id: 'birch', name: 'Natural Birch', fill: '#7a6348', hole: '#241c13', rim: '#997e5e' },
+      ];
+
+      const BOARD_PRESETS = [
+        { id: 'std', label: '914 × 660 mm (36 × 26 holes)', cols: 36, rows: 26, pitch: 25.4 },
+        { id: 'compact', label: '610 × 457 mm (24 × 18 holes)', cols: 24, rows: 18, pitch: 25.4 },
+        { id: 'wide', label: '1168 × 732 mm (46 × 28 holes)', cols: 46, rows: 28, pitch: 25.4 },
+        { id: 'metric', label: '800 × 600 mm (40 × 30 metric)', cols: 40, rows: 30, pitch: 20.0 },
+      ];
+
+      const MOUNT_STYLES = [
+        { id: 'standard_peg', name: 'Standard 1/4" Peg Hook', pegDia: 6.0, clearance: 38 },
+        { id: 'locking_screw', name: 'Locking Screw-Peg Mount', pegDia: 6.2, clearance: 32 },
+        { id: 'skadis_tab', name: 'Slot / Skådis T-Hook', pegDia: 5.0, clearance: 35 },
+      ];
+
+      const TOOL_CATALOG = [
+        {
+          id: 'pliers',
+          name: 'Pliers',
+          category: 'Hand tools',
+          subtitle: 'Needle-nose or slip-joint cradle',
+          defaultWidthMm: 76.2,
+          defaultHeightMm: 177.8,
+          liftOutMm: 44,
+          partsCount: 1,
+          defaultConfig: { jawWidth: 18, handleSpread: 44, tiltDeg: 0 },
+          tags: ['pliers', 'cutter', 'hand', 'grip', 'tang'],
+        },
+        {
+          id: 'claw_hammer',
+          name: 'Claw hammer',
+          category: 'Hand tools',
+          subtitle: 'Dual-fork hammer head cradle',
+          defaultWidthMm: 127.0,
+          defaultHeightMm: 304.8,
+          liftOutMm: 52,
+          partsCount: 1,
+          defaultConfig: { headWidth: 118, neckWidth: 28, handleLength: 295 },
+          tags: ['hammer', 'claw', 'carpentry', 'striking'],
+        },
+        {
+          id: 'bit_rack',
+          name: 'Bit rack',
+          category: 'Racks',
+          subtitle: '1/4" hex driver bit rail',
+          defaultWidthMm: 127.0,
+          defaultHeightMm: 44.5,
+          liftOutMm: 32,
+          partsCount: 1,
+          defaultConfig: {
+            bits: ['T15', 'T20', 'T25', 'PH1', 'PH2', 'PZ2', 'SL5', 'HEX4', 'HEX5', 'HEX6'],
+            bitCount: 10,
+          },
+          tags: ['bit', 'hex', 'torx', 'phillips', 'rack', 'driver'],
+        },
+        {
+          id: 'wrench_rack',
+          name: 'Wrench set rack',
+          category: 'Racks',
+          subtitle: 'Graduated combination wrench rail',
+          defaultWidthMm: 237.6,
+          defaultHeightMm: 268.6,
+          liftOutMm: 48,
+          partsCount: 1,
+          defaultConfig: {
+            unit: 'mm',
+            sizes: [8, 10, 12, 13, 14, 17, 19],
+          },
+          tags: ['wrench', 'spanner', 'metric', 'sae', 'rack', 'fastener'],
+        },
+        {
+          id: 'screwdriver_rack',
+          name: 'Screwdriver rack',
+          category: 'Racks',
+          subtitle: '5-slot vertical driver bar',
+          defaultWidthMm: 177.8,
+          defaultHeightMm: 210.0,
+          liftOutMm: 46,
+          partsCount: 1,
+          defaultConfig: { slots: 5 },
+          tags: ['screwdriver', 'driver', 'rack', 'phillips', 'flathead'],
+        },
+        {
+          id: 'tape_measure',
+          name: 'Tape measure',
+          category: 'Hand tools',
+          subtitle: 'Belt-clip holster bracket',
+          defaultWidthMm: 88.9,
+          defaultHeightMm: 101.6,
+          liftOutMm: 38,
+          partsCount: 1,
+          defaultConfig: { caseWidth: 78 },
+          tags: ['tape', 'measure', 'ruler', 'measuring'],
+        },
+      ];
+
+      function computeItemDimensions(type, config) {
+        if (type === 'wrench_rack') {
+          const sizes = (config && config.sizes) || [8, 10, 12, 13, 14, 17, 19];
+          const count = Math.max(1, sizes.length);
+          const maxSize = Math.max(...sizes.map((s) => Number(s) || 10), 10);
+          const width = Math.max(84, count * 30.5 + 24);
+          const height = Math.min(340, Math.max(150, 130 + maxSize * 7.2));
+          return { widthMm: Number(width.toFixed(2)), heightMm: Number(height.toFixed(2)) };
+        }
+        if (type === 'bit_rack') {
+          const count = (config && config.bits ? config.bits.length : config?.bitCount) || 10;
+          const width = Math.max(76, count * 12.2 + 16);
+          return { widthMm: Number(width.toFixed(2)), heightMm: 44.5 };
+        }
+        if (type === 'screwdriver_rack') {
+          const slots = (config && config.slots) || 5;
+          return { widthMm: Number((slots * 32 + 18).toFixed(2)), heightMm: 210.0 };
+        }
+        const cat = TOOL_CATALOG.find((t) => t.id === type);
+        return {
+          widthMm: cat ? cat.defaultWidthMm : 80,
+          heightMm: cat ? cat.defaultHeightMm : 120,
+        };
+      }
+
+      const INITIAL_BOARD = {
+        cols: 36,
+        rows: 26,
+        pitch: 25.4,
+        holeDiameter: 6.0,
+        colorId: 'slate',
+        thicknessMm: 6.0,
+      };
+
+      const INITIAL_MOUNT = {
+        styleId: 'standard_peg',
+        clearanceMm: 38,
+        showMountingPins: true,
+      };
+
+      const INITIAL_ITEMS = [
+        {
+          id: 'item-wrench-1',
+          type: 'wrench_rack',
+          name: 'Wrench set rack',
+          xMm: 25.4 * 2,
+          yMm: 25.4 * 1,
+          rotation: 0,
+          config: { unit: 'mm', sizes: [8, 10, 12, 13, 14, 17, 19] },
+          ...computeItemDimensions('wrench_rack', { sizes: [8, 10, 12, 13, 14, 17, 19] }),
+          liftOutMm: 48,
+        },
+        {
+          id: 'item-bit-1',
+          type: 'bit_rack',
+          name: 'Bit rack',
+          xMm: 25.4 * 14,
+          yMm: 25.4 * 3,
+          rotation: 0,
+          config: { bits: ['T15', 'T20', 'T25', 'PH1', 'PH2', 'PZ2', 'SL5', 'HEX4', 'HEX5', 'HEX6'], bitCount: 10 },
+          ...computeItemDimensions('bit_rack', { bitCount: 10 }),
+          liftOutMm: 32,
+        },
+      ];
+
+      // ============================================================================
+      // 2. CRISP INLINE VECTOR ICONS (Lucide-inspired 1.5px stroke)
+      // ============================================================================
+
+      const Icon = ({ name, className = 'w-5 h-5' }) => {
+        const props = {
+          className,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.75,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+        };
+        switch (name) {
+          case 'board':
+            return (
+              <svg {...props}>
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+              </svg>
+            );
+          case 'plus':
+            return (
+              <svg {...props}>
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            );
+          case 'minus':
+            return (
+              <svg {...props}>
+                <path d="M5 12h14" />
+              </svg>
+            );
+          case 'edit':
+            return (
+              <svg {...props}>
+                <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />
+              </svg>
+            );
+          case 'mount':
+            return (
+              <svg {...props}>
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+              </svg>
+            );
+          case 'print':
+            return (
+              <svg {...props}>
+                <polyline points="6 9 6 2 18 2 18 9" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <rect x="6" y="14" width="12" height="8" />
+              </svg>
+            );
+          case 'search':
+            return (
+              <svg {...props}>
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            );
+          case 'undo':
+            return (
+              <svg {...props}>
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            );
+          case 'redo':
+            return (
+              <svg {...props}>
+                <path d="M21 7v6h-6" />
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+              </svg>
+            );
+          case 'cube':
+            return (
+              <svg {...props}>
+                <path d="m21 16-9 5-9-5V8l9-5 9 5Z" />
+                <path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12" />
+              </svg>
+            );
+          case 'copy':
+            return (
+              <svg {...props}>
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            );
+          case 'trash':
+            return (
+              <svg {...props}>
+                <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+              </svg>
+            );
+          case 'rotate':
+            return (
+              <svg {...props}>
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+              </svg>
+            );
+          case 'download':
+            return (
+              <svg {...props}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            );
+          case 'check':
+            return (
+              <svg {...props}>
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            );
+          case 'x':
+            return (
+              <svg {...props}>
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            );
+          case 'fit':
+            return (
+              <svg {...props}>
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            );
+          default:
+            return null;
+        }
+      };
+
+      // ============================================================================
+      // 3. DETAILED SVG TOOL & HOLDER RENDERER (2D Planner + Sidebar Thumbnails)
+      // ============================================================================
+
+      function ToolIllustrationSVG({ item, showTool = true, isPreview = false }) {
+        const w = item.widthMm;
+        const h = item.heightMm;
+
+        // Holder base color (3D printed polymer look in slate/sky blue)
+        const holderFill = '#2a415b';
+        const holderStroke = '#7ba7d7';
+        const metalFill = '#cbd5e1';
+        const metalDark = '#64748b';
+        const handleGrip = '#1d4ed8';
+
+        if (item.type === 'wrench_rack') {
+          const sizes = (item.config && item.config.sizes) || [8, 10, 12, 13, 14, 17, 19];
+          const unit = (item.config && item.config.unit) || 'mm';
+          const railHeight = 36;
+          const padX = 14;
+          const usableW = Math.max(40, w - padX * 2);
+          const step = sizes.length > 1 ? usableW / (sizes.length - 1) : 0;
+          const maxSize = Math.max(...sizes.map((s) => Number(s) || 10), 14);
+
+          return (
+            <g>
+              {/* Holder rail body */}
+              <rect
+                x={0}
+                y={0}
+                width={w}
+                height={h}
+                rx={4}
+                fill="rgba(26, 44, 66, 0.45)"
+                stroke={holderStroke}
+                strokeWidth={1.1}
+                strokeDasharray={showTool ? 'none' : 'none'}
+              />
+              {/* Top printed rail */}
+              <rect x={4} y={6} width={w - 8} height={railHeight} rx={3} fill={holderFill} stroke="#60a5fa" strokeWidth={1.1} />
+              {/* Peg mounting points */}
+              <circle cx={14} cy={14} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
+              <circle cx={w - 14} cy={14} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
+
+              {/* Individual wrench slots & wrenches */}
+              {sizes.map((sz, idx) => {
+                const cx = sizes.length === 1 ? w / 2 : padX + idx * step;
+                const num = Number(sz) || 10;
+                const ratio = Math.min(1, Math.max(0.38, num / maxSize));
+                const wrenchLen = 95 + ratio * (h - 115);
+                const headR = 5.5 + ratio * 6.5;
+                const shaftW = 4.2 + ratio * 4.6;
+
+                return (
+                  <g key={idx}>
+                    {/* Holder slot saddle */}
+                    <rect
+                      x={cx - shaftW * 0.85}
+                      y={18}
+                      width={shaftW * 1.7}
+                      height={22}
+                      rx={2}
+                      fill="#1b2d42"
+                      stroke="#93c5fd"
+                      strokeWidth={0.8}
+                    />
+                    {!isPreview && (
+                      <text
+                        x={cx}
+                        y={13.5}
+                        textAnchor="middle"
+                        fill="#cbd5e1"
+                        fontSize="6.5"
+                        fontFamily="JetBrains Mono, monospace"
+                      >
+                        {sz}
+                        {unit === 'mm' ? '' : '"'}
+                      </text>
+                    )}
+
+                    {showTool && (
+                      <g>
+                        {/* Combination wrench top open-end head */}
+                        <circle cx={cx} cy={28} r={headR} fill={metalFill} stroke="#475569" strokeWidth={0.9} />
+                        <rect
+                          x={cx - headR * 0.42}
+                          y={28 - headR - 1}
+                          width={headR * 0.84}
+                          height={headR * 1.1}
+                          fill="#1c2a3a"
+                        />
+                        {/* Shaft */}
+                        <rect
+                          x={cx - shaftW / 2}
+                          y={28 + headR * 0.55}
+                          width={shaftW}
+                          height={wrenchLen - headR * 1.3}
+                          rx={1.5}
+                          fill="url(#chromeGrad)"
+                          stroke="#64748b"
+                          strokeWidth={0.7}
+                        />
+                        {/* Bottom box-end ring */}
+                        <circle
+                          cx={cx}
+                          cy={28 + wrenchLen - headR * 0.5}
+                          r={headR * 0.82}
+                          fill={metalFill}
+                          stroke="#475569"
+                          strokeWidth={0.9}
+                        />
+                        <circle
+                          cx={cx}
+                          cy={28 + wrenchLen - headR * 0.5}
+                          r={headR * 0.42}
+                          fill="#1f3145"
+                        />
+                      </g>
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          );
+        }
+
+        if (item.type === 'bit_rack') {
+          const bits = (item.config && item.config.bits) || ['T15', 'T20', 'T25', 'PH1', 'PH2', 'PZ2', 'SL5', 'HEX4'];
+          const pad = 10;
+          const step = bits.length > 0 ? (w - pad * 2) / bits.length : 12;
+          return (
+            <g>
+              {/* Rack body */}
+              <rect x={0} y={0} width={w} height={h} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.2} />
+              <rect x={4} y={4} width={w - 8} height={11} rx={2} fill="#1d3046" />
+              <circle cx={10} cy={9.5} r={2} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
+              <circle cx={w - 10} cy={9.5} r={2} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
+
+              {bits.map((label, i) => {
+                const bx = pad + i * step + step / 2;
+                return (
+                  <g key={i}>
+                    {/* Socket pocket */}
+                    <rect x={bx - 4.5} y={19} width={9} height={10} rx={1.5} fill="#122133" stroke="#60a5fa" strokeWidth={0.7} />
+                    {showTool && (
+                      <g>
+                        <rect x={bx - 3.2} y={13} width={6.4} height={13} rx={1} fill={metalFill} stroke="#475569" strokeWidth={0.6} />
+                        <polygon points={`${bx - 2.2},13 ${bx + 2.2},13 ${bx + 1.4},9.5 ${bx - 1.4},9.5`} fill="#94a3b8" />
+                      </g>
+                    )}
+                    {!isPreview && (
+                      <text
+                        x={bx}
+                        y={38.5}
+                        textAnchor="middle"
+                        fill="#93c5fd"
+                        fontSize="4.6"
+                        fontFamily="JetBrains Mono, monospace"
+                      >
+                        {label}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          );
+        }
+
+        if (item.type === 'pliers') {
+          const cx = w / 2;
+          return (
+            <g>
+              {/* Holder backplate */}
+              <rect x={6} y={4} width={w - 12} height={46} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
+              {/* Twin retention prongs */}
+              <rect x={cx - 16} y={32} width={8} height={16} rx={3} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              <rect x={cx + 8} y={32} width={8} height={16} rx={3} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              <circle cx={16} cy={14} r={2.4} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
+              <circle cx={w - 16} cy={14} r={2.4} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
+
+              {showTool && (
+                <g>
+                  {/* Needle-nose steel jaws */}
+                  <path
+                    d={`M ${cx - 2} 10 L ${cx - 8} 44 L ${cx} 50 L ${cx + 8} 44 L ${cx + 2} 10 Z`}
+                    fill={metalFill}
+                    stroke="#475569"
+                    strokeWidth={0.9}
+                  />
+                  {/* Pivot rivet */}
+                  <circle cx={cx} cy={45} r={5.5} fill="#94a3b8" stroke="#334155" strokeWidth={0.9} />
+                  <circle cx={cx} cy={45} r={2} fill="#475569" />
+                  {/* Insulated dipped handles */}
+                  <path
+                    d={`M ${cx - 5} 50 Q ${cx - 22} 95 ${cx - 18} ${h - 10} Q ${cx - 14} ${h - 4} ${cx - 9} ${h - 10} Q ${cx - 11} 92 ${cx - 2} 53 Z`}
+                    fill="#2563eb"
+                    stroke="#60a5fa"
+                    strokeWidth={0.9}
+                  />
+                  <path
+                    d={`M ${cx + 5} 50 Q ${cx + 22} 95 ${cx + 18} ${h - 10} Q ${cx + 14} ${h - 4} ${cx + 9} ${h - 10} Q ${cx + 11} 92 ${cx + 2} 53 Z`}
+                    fill="#2563eb"
+                    stroke="#60a5fa"
+                    strokeWidth={0.9}
+                  />
+                </g>
+              )}
+            </g>
+          );
+        }
+
+        if (item.type === 'claw_hammer') {
+          const cx = w / 2;
+          return (
+            <g>
+              {/* Holder cradle plate */}
+              <rect x={14} y={8} width={w - 28} height={66} rx={5} fill={holderFill} stroke={holderStroke} strokeWidth={1.2} />
+              {/* Two angled support forks */}
+              <rect x={cx - 26} y={40} width={12} height={32} rx={4} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              <rect x={cx + 14} y={40} width={12} height={32} rx={4} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              <circle cx={26} cy={18} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
+              <circle cx={w - 26} cy={18} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
+
+              {showTool && (
+                <g>
+                  {/* Hammer handle */}
+                  <rect x={cx - 9} y={36} width={18} height={h - 48} rx={7} fill="#d9a066" stroke="#854d0e" strokeWidth={1} />
+                  {/* Rubber grip */}
+                  <rect x={cx - 10.5} y={h - 115} width={21} height={102} rx={7} fill="#1e293b" stroke="#475569" strokeWidth={1} />
+                  {/* Forged steel head */}
+                  <path
+                    d={`M ${cx - 50} 26 L ${cx + 14} 24 Q ${cx + 42} 25 ${cx + 54} 42 Q ${cx + 38} 38 ${cx + 18} 44 L ${cx - 32} 44 L ${cx - 36} 48 L ${cx - 50} 48 Z`}
+                    fill={metalFill}
+                    stroke="#475569"
+                    strokeWidth={1.1}
+                  />
+                  {/* Striking face */}
+                  <rect x={cx - 54} y={24} width={8} height={26} rx={2} fill="#e2e8f0" stroke="#475569" strokeWidth={1} />
+                </g>
+              )}
+            </g>
+          );
+        }
+
+        if (item.type === 'screwdriver_rack') {
+          const slots = (item.config && item.config.slots) || 5;
+          const step = (w - 24) / slots;
+          return (
+            <g>
+              <rect x={2} y={4} width={w - 4} height={34} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
+              {Array.from({ length: slots }).map((_, i) => {
+                const sx = 12 + i * step + step / 2;
+                const bladeLen = 95 + (i % 3) * 28;
+                return (
+                  <g key={i}>
+                    <circle cx={sx} cy={22} r={7} fill="#16273c" stroke="#93c5fd" strokeWidth={0.9} />
+                    {showTool && (
+                      <g>
+                        <rect x={sx - 7.5} y={6} width={15} height={46} rx={5} fill="#2563eb" stroke="#60a5fa" strokeWidth={0.8} />
+                        <rect x={sx - 2.2} y={52} width={4.4} height={bladeLen} rx={1} fill={metalFill} stroke="#475569" strokeWidth={0.7} />
+                      </g>
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          );
+        }
+
+        // Tape measure
+        return (
+          <g>
+            <rect x={6} y={6} width={w - 12} height={h - 12} rx={6} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
+            <rect x={w / 2 - 14} y={24} width={28} height={10} rx={2} fill="#152436" stroke="#93c5fd" strokeWidth={0.9} />
+            {showTool && (
+              <g>
+                <rect x={14} y={18} width={w - 28} height={h - 32} rx={14} fill="#eab308" stroke="#a16207" strokeWidth={1.2} />
+                <rect x={22} y={28} width={w - 44} height={h - 52} rx={8} fill="#1e293b" />
+                <circle cx={w / 2} cy={h / 2 + 2} r={11} fill="#334155" stroke="#64748b" strokeWidth={1} />
+              </g>
+            )}
+          </g>
+        );
+      }
+
+      // ============================================================================
+      // 4. 3D INSPECTION VIEWPORT (Three.js + OrbitControls + STLExporter)
+      // ============================================================================
+
+      function ThreeDInspectionView({ board, items, selectedId, onSelect }) {
+        const mountRef = useRef(null);
+        const [threeReady, setThreeReady] = useState(Boolean(window.THREE_KIT));
+        const [isolateSelected, setIsolateSelected] = useState(false);
+        const [showTools3D, setShowTools3D] = useState(true);
+        const [exportStatus, setExportStatus] = useState('');
+        const sceneGroupRef = useRef(null);
+        const cameraRef = useRef(null);
+        const controlsRef = useRef(null);
+
+        useEffect(() => {
+          if (window.THREE_KIT) {
+            setThreeReady(true);
+            return;
+          }
+          const handler = () => setThreeReady(true);
+          window.addEventListener('three-kit-ready', handler);
+          return () => window.removeEventListener('three-kit-ready', handler);
+        }, []);
+
+        // Build 3D scene once Three.js kit is loaded
+        useEffect(() => {
+          if (!threeReady || !mountRef.current) return;
+          const { THREE, OrbitControls, RoomEnvironment } = window.THREE_KIT;
+          const container = mountRef.current;
+
+          const isSoftwareGl = (() => {
+            try {
+              const c = document.createElement('canvas');
+              const gl = c.getContext('webgl2') || c.getContext('webgl');
+              if (!gl) return true;
+              const ext = gl.getExtension('WEBGL_debug_renderer_info');
+              const gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER));
+              gl.getExtension('WEBGL_lose_context')?.loseContext();
+              return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
+            } catch {
+              return true;
+            }
+          })();
+
+          const renderer = new THREE.WebGLRenderer({
+            antialias: !isSoftwareGl,
+            powerPreference: 'high-performance',
+          });
+          renderer.outputColorSpace = THREE.SRGBColorSpace;
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 1.1;
+          renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
+          renderer.shadowMap.enabled = !isSoftwareGl;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+          renderer.setSize(container.clientWidth, container.clientHeight);
+          container.appendChild(renderer.domElement);
+
+          const scene = new THREE.Scene();
+          scene.background = new THREE.Color('#0f1c2e');
+          scene.fog = new THREE.Fog('#0f1c2e', 1400, 3400);
+
+          const pmrem = new THREE.PMREMGenerator(renderer);
+          scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+          pmrem.dispose();
+
+          const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 1, 6000);
+          camera.position.set(0, -180, 950);
+          cameraRef.current = camera;
+
+          const controls = new OrbitControls(camera, renderer.domElement);
+          controls.enableDamping = !isSoftwareGl;
+          controls.dampingFactor = 0.07;
+          controls.target.set(0, 0, 0);
+          controlsRef.current = controls;
+
+          // Three-point studio lighting
+          const hemi = new THREE.HemisphereLight('#bfd8ff', '#162436', 0.85);
+          scene.add(hemi);
+
+          const keyLight = new THREE.DirectionalLight('#fff6eb', 1.85);
+          keyLight.position.set(450, 520, 720);
+          keyLight.castShadow = !isSoftwareGl;
+          keyLight.shadow.mapSize.set(1024, 1024);
+          scene.add(keyLight);
+
+          const rimLight = new THREE.DirectionalLight('#60a5fa', 0.9);
+          rimLight.position.set(-500, -250, -400);
+          scene.add(rimLight);
+
+          const exportRoot = new THREE.Group();
+          scene.add(exportRoot);
+          sceneGroupRef.current = exportRoot;
+
+          let frameId = 0;
+          let disposed = false;
+
+          const renderLoop = () => {
+            if (disposed) return;
+            controls.update();
+            renderer.render(scene, camera);
+            if (!isSoftwareGl) {
+              frameId = requestAnimationFrame(renderLoop);
+            }
+          };
+
+          const onControlChange = () => {
+            if (isSoftwareGl && !disposed) {
+              renderer.render(scene, camera);
+            }
+          };
+          controls.addEventListener('change', onControlChange);
+
+          const onResize = () => {
+            if (!container || disposed) return;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            renderer.render(scene, camera);
+          };
+          window.addEventListener('resize', onResize);
+
+          renderLoop();
+          if (isSoftwareGl) {
+            renderer.render(scene, camera);
+          }
+
+          return () => {
+            disposed = true;
+            cancelAnimationFrame(frameId);
+            window.removeEventListener('resize', onResize);
+            controls.removeEventListener('change', onControlChange);
+            controls.dispose();
+            renderer.dispose();
+            if (renderer.domElement.parentNode === container) {
+              container.removeChild(renderer.domElement);
+            }
+          };
+        }, [threeReady]);
+
+        // Rebuild 3D geometry when board, items, selection, or display flags change
+        useEffect(() => {
+          if (!threeReady || !sceneGroupRef.current) return;
+          const { THREE } = window.THREE_KIT;
+          const root = sceneGroupRef.current;
+
+          // Clear previous meshes
+          while (root.children.length > 0) {
+            const child = root.children[0];
+            root.remove(child);
+            child.traverse?.((obj) => {
+              if (obj.geometry) obj.geometry.dispose();
+              if (obj.material) {
+                if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
+                else obj.material.dispose();
+              }
+            });
+          }
+
+          const boardW = board.cols * board.pitch;
+          const boardH = board.rows * board.pitch;
+          const boardColorObj = BOARD_COLORS.find((c) => c.id === board.colorId) || BOARD_COLORS[0];
+
+          const boardMat = new THREE.MeshStandardMaterial({
+            color: boardColorObj.fill,
+            roughness: 0.58,
+            metalness: 0.35,
+          });
+          const holderMat = new THREE.MeshStandardMaterial({
+            color: '#3b82f6',
+            roughness: 0.38,
+            metalness: 0.12,
+          });
+          const holderSelectedMat = new THREE.MeshStandardMaterial({
+            color: '#93c5fd',
+            roughness: 0.32,
+            metalness: 0.18,
+          });
+          const steelMat = new THREE.MeshStandardMaterial({
+            color: '#cbd5e1',
+            roughness: 0.25,
+            metalness: 0.88,
+          });
+          const gripMat = new THREE.MeshStandardMaterial({
+            color: '#1d4ed8',
+            roughness: 0.72,
+            metalness: 0.05,
+          });
+
+          if (!isolateSelected) {
+            // Pegboard plate
+            const boardMesh = new THREE.Mesh(
+              new THREE.BoxGeometry(boardW, boardH, board.thicknessMm),
+              boardMat
+            );
+            boardMesh.position.set(0, 0, -board.thicknessMm / 2);
+            boardMesh.receiveShadow = true;
+            root.add(boardMesh);
+
+            // Instanced peg holes on front face
+            const totalHoles = board.cols * board.rows;
+            const holeGeo = new THREE.CircleGeometry(board.holeDiameter / 2, 12);
+            const holeMat = new THREE.MeshBasicMaterial({ color: boardColorObj.hole });
+            const instHoles = new THREE.InstancedMesh(holeGeo, holeMat, totalHoles);
+            const dummy = new THREE.Object3D();
+            let idx = 0;
+            for (let r = 0; r < board.rows; r++) {
+              for (let c = 0; c < board.cols; c++) {
+                const hx = -boardW / 2 + (c + 0.5) * board.pitch;
+                const hy = boardH / 2 - (r + 0.5) * board.pitch;
+                dummy.position.set(hx, hy, 0.25);
+                dummy.updateMatrix();
+                instHoles.setMatrixAt(idx++, dummy.matrix);
+              }
+            }
+            instHoles.computeBoundingSphere();
+            root.add(instHoles);
+          }
+
+          const visibleItems = isolateSelected && selectedId
+            ? items.filter((it) => it.id === selectedId)
+            : items;
+
+          visibleItems.forEach((item) => {
+            const g = new THREE.Group();
+            const isSel = item.id === selectedId;
+            const mat = isSel ? holderSelectedMat : holderMat;
+
+            const cx = isolateSelected ? 0 : -boardW / 2 + item.xMm + item.widthMm / 2;
+            const cy = isolateSelected ? 0 : boardH / 2 - item.yMm - item.heightMm / 2;
+            g.position.set(cx, cy, 0);
+            g.rotation.z = -(item.rotation * Math.PI) / 180;
+
+            // Backplate & pegs (composite 3D geometry)
+            const plateH = item.type === 'bit_rack' ? item.heightMm : Math.min(item.heightMm, 52);
+            const plate = new THREE.Mesh(new THREE.BoxGeometry(item.widthMm - 8, plateH, 5), mat);
+            plate.position.set(0, item.heightMm / 2 - plateH / 2 - 4, 2.5);
+            plate.castShadow = true;
+            g.add(plate);
+
+            // Rear peg hooks
+            const pegL = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 2.8, 10, 12), mat);
+            pegL.rotation.x = Math.PI / 2;
+            pegL.position.set(-item.widthMm / 2 + 16, item.heightMm / 2 - 14, -4);
+            g.add(pegL);
+
+            const pegR = pegL.clone();
+            pegR.position.x = item.widthMm / 2 - 16;
+            g.add(pegR);
+
+            if (item.type === 'wrench_rack') {
+              const sizes = (item.config && item.config.sizes) || [8, 10, 12, 13, 14, 17, 19];
+              const shelf = new THREE.Mesh(new THREE.BoxGeometry(item.widthMm - 10, 12, 34), mat);
+              shelf.position.set(0, item.heightMm / 2 - 28, 17);
+              shelf.castShadow = true;
+              g.add(shelf);
+
+              const usableW = Math.max(40, item.widthMm - 28);
+              const step = sizes.length > 1 ? usableW / (sizes.length - 1) : 0;
+              sizes.forEach((sz, i) => {
+                const wx = sizes.length === 1 ? 0 : -usableW / 2 + i * step;
+                const divider = new THREE.Mesh(new THREE.BoxGeometry(5, 16, 36), mat);
+                divider.position.set(wx + (i === sizes.length - 1 ? -12 : 12), item.heightMm / 2 - 26, 18);
+                g.add(divider);
+
+                if (showTools3D) {
+                  const len = Math.min(item.heightMm - 32, 95 + Number(sz) * 6.5);
+                  const wrench = new THREE.Mesh(new THREE.BoxGeometry(7, len, 4.5), steelMat);
+                  wrench.position.set(wx, item.heightMm / 2 - 28 - len / 2 + 10, 22);
+                  wrench.castShadow = true;
+                  g.add(wrench);
+                }
+              });
+            } else if (item.type === 'bit_rack') {
+              const shelf = new THREE.Mesh(new THREE.BoxGeometry(item.widthMm - 6, 18, 26), mat);
+              shelf.position.set(0, -4, 13);
+              shelf.castShadow = true;
+              g.add(shelf);
+              const bits = (item.config && item.config.bits) || [];
+              const step = bits.length ? (item.widthMm - 20) / bits.length : 12;
+              if (showTools3D) {
+                bits.forEach((_, i) => {
+                  const bx = -(item.widthMm - 20) / 2 + i * step + step / 2;
+                  const bit = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.2, 24, 6), steelMat);
+                  bit.position.set(bx, 10, 14);
+                  g.add(bit);
+                });
+              }
+            } else if (item.type === 'claw_hammer') {
+              [-20, 20].forEach((fx) => {
+                const fork = new THREE.Mesh(new THREE.BoxGeometry(10, 14, 42), mat);
+                fork.position.set(fx, item.heightMm / 2 - 36, 21);
+                fork.castShadow = true;
+                g.add(fork);
+              });
+              if (showTools3D) {
+                const head = new THREE.Mesh(new THREE.BoxGeometry(106, 24, 24), steelMat);
+                head.position.set(0, item.heightMm / 2 - 26, 24);
+                g.add(head);
+                const shaft = new THREE.Mesh(new THREE.CylinderGeometry(9, 10, item.heightMm - 60, 12), gripMat);
+                shaft.position.set(0, -14, 24);
+                g.add(shaft);
+              }
+            } else {
+              // Pliers / screwdriver / tape measure cradle
+              [-14, 14].forEach((px) => {
+                const prong = new THREE.Mesh(new THREE.BoxGeometry(8, 12, 32), mat);
+                prong.position.set(px, item.heightMm / 2 - 36, 16);
+                g.add(prong);
+              });
+              if (showTools3D) {
+                const body = new THREE.Mesh(new THREE.BoxGeometry(22, item.heightMm - 36, 12), gripMat);
+                body.position.set(0, -10, 18);
+                g.add(body);
+              }
+            }
+
+            root.add(g);
+          });
+        }, [threeReady, board, items, selectedId, isolateSelected, showTools3D]);
+
+        const handleExportSTL = () => {
+          if (!window.THREE_KIT || !sceneGroupRef.current) return;
+          const { STLExporter } = window.THREE_KIT;
+          const exporter = new STLExporter();
+          const stlString = exporter.parse(sceneGroupRef.current);
+          const blob = new Blob([stlString], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = isolateSelected && selectedId ? `pegboard-holder-${selectedId}.stl` : 'pegboard-organizer.stl';
+          a.click();
+          URL.revokeObjectURL(url);
+          setExportStatus('STL exported');
+          setTimeout(() => setExportStatus(''), 2500);
+        };
+
+        const resetCamera = () => {
+          if (cameraRef.current && controlsRef.current) {
+            cameraRef.current.position.set(0, -180, 950);
+            controlsRef.current.target.set(0, 0, 0);
+            controlsRef.current.update();
+          }
+        };
+
+        return (
+          <div className="relative w-full h-full bg-[#0f1c2e]">
+            <div ref={mountRef} className="w-full h-full" />
+
+            {/* Top-right 3D inspection controls */}
+            <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
+              <button
+                onClick={() => setIsolateSelected((v) => !v)}
+                disabled={!selectedId}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors whitespace-nowrap ${
+                  isolateSelected
+                    ? 'bg-sky-200 text-slate-950 border-sky-200'
+                    : 'bg-[#132338] text-slate-200 border-[#263f61] hover:border-sky-400/60 disabled:opacity-40'
+                }`}
+              >
+                {isolateSelected ? 'Showing Selected Holder' : 'Isolate Selected'}
+              </button>
+              <button
+                onClick={() => setShowTools3D((v) => !v)}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors whitespace-nowrap ${
+                  showTools3D
+                    ? 'bg-[#182b44] text-sky-200 border-sky-400/50'
+                    : 'bg-[#132338] text-slate-300 border-[#263f61]'
+                }`}
+              >
+                {showTools3D ? 'Tools: Shown' : 'Holders Only'}
+              </button>
+              <button
+                onClick={resetCamera}
+                className="px-3 py-1.5 rounded-md text-xs font-medium bg-[#132338] text-slate-200 border border-[#263f61] hover:border-sky-400/60 whitespace-nowrap"
+              >
+                Reset view
+              </button>
+              <button
+                onClick={handleExportSTL}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-sky-200 text-slate-950 hover:bg-sky-100 transition-colors whitespace-nowrap"
+              >
+                <Icon name="download" className="w-3.5 h-3.5" />
+                <span>{exportStatus || 'Export STL'}</span>
+              </button>
+            </div>
+
+            <div className="absolute bottom-3 left-4 z-10 text-xs text-slate-400 pointer-events-none">
+              Drag to orbit · Right-drag to pan · Scroll to zoom
+            </div>
+          </div>
+        );
+      }
+
+      // ============================================================================
+      // 5. MAIN APPLICATION
+      // ============================================================================
+
+      function App() {
+        // Load persisted state from localStorage
+        const loadInitial = () => {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && parsed.board && Array.isArray(parsed.items)) {
+                return parsed;
+              }
+            }
+          } catch {}
+          return { board: INITIAL_BOARD, mount: INITIAL_MOUNT, items: INITIAL_ITEMS };
+        };
+
+        const initial = useMemo(() => loadInitial(), []);
+
+        const [board, setBoard] = useState(initial.board);
+        const [mount, setMount] = useState(initial.mount || INITIAL_MOUNT);
+        const [items, setItems] = useState(initial.items);
+
+        // Undo / Redo stacks
+        const [past, setPast] = useState([]);
+        const [future, setFuture] = useState([]);
+
+        // UI & Navigation State
+        const [activeRail, setActiveRail] = useState('add'); // 'board' | 'add' | 'edit' | 'mount' | 'print'
+        const [viewMode, setViewMode] = useState('planner'); // 'planner' | '3d'
+        const [selectedId, setSelectedId] = useState(initial.items[0]?.id || null);
+        const [searchQuery, setSearchQuery] = useState('');
+        const [categoryFilter, setCategoryFilter] = useState('All');
+
+        // Canvas Display & Snap Toggles
+        const [snapToGrid, setSnapToGrid] = useState(true);
+        const [showYourTools, setShowYourTools] = useState(true);
+        const [showLiftOut, setShowLiftOut] = useState(false);
+
+        // Viewport pan/zoom state (mm-to-px scale)
+        const viewportRef = useRef(null);
+        const [zoom, setZoom] = useState(0.76);
+        const [pan, setPan] = useState({ x: 40, y: 24 });
+
+        // Dragging state
+        const [dragInfo, setDragInfo] = useState(null); // { type: 'item' | 'pan', itemId?, startClientX, startClientY, origX, origY, snapshotItems }
+        const [hoverCatalogId, setHoverCatalogId] = useState(null);
+        const [saveNotice, setSaveNotice] = useState('Saved on this device');
+
+        const boardWidthMm = board.cols * board.pitch;
+        const boardHeightMm = board.rows * board.pitch;
+        const boardColorObj = BOARD_COLORS.find((c) => c.id === board.colorId) || BOARD_COLORS[0];
+
+        // Persist to localStorage automatically
+        useEffect(() => {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ board, mount, items }));
+            setSaveNotice('Saved on this device');
+          } catch {}
+        }, [board, mount, items]);
+
+        // Fit board to viewport nicely
+        const fitBoard = useCallback(() => {
+          if (!viewportRef.current) return;
+          const rect = viewportRef.current.getBoundingClientRect();
+          const padW = 140;
+          const padH = 120;
+          const scaleX = (rect.width - padW) / boardWidthMm;
+          const scaleY = (rect.height - padH) / boardHeightMm;
+          const nextZoom = Math.max(0.25, Math.min(2.2, Math.min(scaleX, scaleY)));
+          setZoom(nextZoom);
+          setPan({
+            x: (rect.width - boardWidthMm * nextZoom) / 2,
+            y: (rect.height - boardHeightMm * nextZoom) / 2 - 8,
+          });
+        }, [boardWidthMm, boardHeightMm]);
+
+        useEffect(() => {
+          fitBoard();
+          window.addEventListener('resize', fitBoard);
+          return () => window.removeEventListener('resize', fitBoard);
+        }, [fitBoard]);
+
+        const zoomToItem = useCallback(() => {
+          const item = items.find((i) => i.id === selectedId);
+          if (!item || !viewportRef.current) return;
+          const rect = viewportRef.current.getBoundingClientRect();
+          const scaleX = (rect.width * 0.55) / item.widthMm;
+          const scaleY = (rect.height * 0.55) / item.heightMm;
+          const nextZoom = Math.max(0.4, Math.min(2.4, Math.min(scaleX, scaleY)));
+          setZoom(nextZoom);
+          setPan({
+            x: rect.width / 2 - (item.xMm + item.widthMm / 2) * nextZoom,
+            y: rect.height / 2 - (item.yMm + item.heightMm / 2) * nextZoom,
+          });
+        }, [items, selectedId]);
+
+        // History helpers
+        const commitItems = useCallback(
+          (nextItems) => {
+            setPast((prev) => [...prev.slice(-39), items]);
+            setFuture([]);
+            setItems(nextItems);
+          },
+          [items]
+        );
+
+        const handleUndo = useCallback(() => {
+          if (past.length === 0) return;
+          const previous = past[past.length - 1];
+          setPast((prev) => prev.slice(0, -1));
+          setFuture((prev) => [items, ...prev]);
+          setItems(previous);
+          if (selectedId && !previous.some((i) => i.id === selectedId)) {
+            setSelectedId(previous[0]?.id || null);
+          }
+        }, [past, items, selectedId]);
+
+        const handleRedo = useCallback(() => {
+          if (future.length === 0) return;
+          const next = future[0];
+          setFuture((prev) => prev.slice(1));
+          setPast((prev) => [...prev, items]);
+          setItems(next);
+        }, [future, items]);
+
+        // Clamp and optionally snap item coordinates
+        const snapCoord = useCallback(
+          (valMm, maxMm, sizeMm) => {
+            const clamped = Math.max(0, Math.min(maxMm - sizeMm, valMm));
+            if (!snapToGrid) return Number(clamped.toFixed(1));
+            const snapped = Math.round(clamped / board.pitch) * board.pitch;
+            return Number(Math.max(0, Math.min(maxMm - sizeMm, snapped)).toFixed(2));
+          },
+          [snapToGrid, board.pitch]
+        );
+
+        // Find non-overlapping spot on the pegboard
+        const findOpenSpot = useCallback(
+          (wMm, hMm) => {
+            const step = board.pitch;
+            for (let y = step; y + hMm <= boardHeightMm; y += step * 2) {
+              for (let x = step; x + wMm <= boardWidthMm; x += step * 2) {
+                const overlaps = items.some((it) => {
+                  const iw = it.rotation % 180 === 0 ? it.widthMm : it.heightMm;
+                  const ih = it.rotation % 180 === 0 ? it.heightMm : it.widthMm;
+                  return !(x + wMm + 8 <= it.xMm || x >= it.xMm + iw + 8 || y + hMm + 8 <= it.yMm || y >= it.yMm + ih + 8);
+                });
+                if (!overlaps) return { xMm: Number(x.toFixed(2)), yMm: Number(y.toFixed(2)) };
+              }
+            }
+            return { xMm: step, yMm: step };
+          },
+          [items, board.pitch, boardWidthMm, boardHeightMm]
+        );
+
+        // Add tool from catalog
+        const addToolToBoard = useCallback(
+          (catalogTool, dropPos = null) => {
+            const configCopy = JSON.parse(JSON.stringify(catalogTool.defaultConfig));
+            const dims = computeItemDimensions(catalogTool.id, configCopy);
+            const pos = dropPos
+              ? {
+                  xMm: snapCoord(dropPos.xMm - dims.widthMm / 2, boardWidthMm, dims.widthMm),
+                  yMm: snapCoord(dropPos.yMm - dims.heightMm / 2, boardHeightMm, dims.heightMm),
+                }
+              : findOpenSpot(dims.widthMm, dims.heightMm);
+
+            const newItem = {
+              id: `item-${catalogTool.id}-${Date.now().toString(36)}`,
+              type: catalogTool.id,
+              name: catalogTool.name,
+              xMm: pos.xMm,
+              yMm: pos.yMm,
+              rotation: 0,
+              config: configCopy,
+              widthMm: dims.widthMm,
+              heightMm: dims.heightMm,
+              liftOutMm: catalogTool.liftOutMm,
+            };
+
+            commitItems([...items, newItem]);
+            setSelectedId(newItem.id);
+            setViewMode('planner');
+          },
+          [items, commitItems, findOpenSpot, snapCoord, boardWidthMm, boardHeightMm]
+        );
+
+        const removeItem = useCallback(
+          (id) => {
+            const next = items.filter((i) => i.id !== id);
+            commitItems(next);
+            if (selectedId === id) {
+              setSelectedId(next[0]?.id || null);
+            }
+          },
+          [items, selectedId, commitItems]
+        );
+
+        const duplicateItem = useCallback(
+          (id) => {
+            const src = items.find((i) => i.id === id);
+            if (!src) return;
+            const pos = findOpenSpot(src.widthMm, src.heightMm);
+            const copy = {
+              ...JSON.parse(JSON.stringify(src)),
+              id: `item-${src.type}-${Date.now().toString(36)}`,
+              name: `${src.name} (copy)`,
+              xMm: pos.xMm,
+              yMm: pos.yMm,
+            };
+            commitItems([...items, copy]);
+            setSelectedId(copy.id);
+          },
+          [items, commitItems, findOpenSpot]
+        );
+
+        const updateSelectedItem = useCallback(
+          (updater) => {
+            if (!selectedId) return;
+            const next = items.map((it) => {
+              if (it.id !== selectedId) return it;
+              const updated = typeof updater === 'function' ? updater(it) : { ...it, ...updater };
+              const dims = computeItemDimensions(updated.type, updated.config);
+              return { ...updated, ...dims };
+            });
+            commitItems(next);
+          },
+          [selectedId, items, commitItems]
+        );
+
+        // Keyboard shortcuts (Ctrl+Z, Delete, R, Escape)
+        useEffect(() => {
+          const onKeyDown = (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+              e.preventDefault();
+              if (e.shiftKey) handleRedo();
+              else handleUndo();
+            } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'y') {
+              e.preventDefault();
+              handleRedo();
+            } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+              e.preventDefault();
+              removeItem(selectedId);
+            } else if (e.key.toLowerCase() === 'r' && selectedId) {
+              e.preventDefault();
+              updateSelectedItem((it) => ({ ...it, rotation: (it.rotation + 90) % 360 }));
+            } else if (e.key === 'Escape') {
+              setSelectedId(null);
+            }
+          };
+          window.addEventListener('keydown', onKeyDown);
+          return () => window.removeEventListener('keydown', onKeyDown);
+        }, [handleUndo, handleRedo, selectedId, removeItem, updateSelectedItem]);
+
+        // Pointer dragging for items & board panning
+        const handleItemPointerDown = (e, item) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          setSelectedId(item.id);
+          setDragInfo({
+            type: 'item',
+            itemId: item.id,
+            startClientX: e.clientX,
+            startClientY: e.clientY,
+            origX: item.xMm,
+            origY: item.yMm,
+            snapshotItems: items,
+            moved: false,
+          });
+        };
+
+        const handleViewportPointerDown = (e) => {
+          if (e.button !== 0) return;
+          if (e.target === viewportRef.current || e.target.dataset.boardBg === 'true') {
+            setSelectedId(null);
+          }
+          setDragInfo({
+            type: 'pan',
+            startClientX: e.clientX,
+            startClientY: e.clientY,
+            origX: pan.x,
+            origY: pan.y,
+          });
+        };
+
+        useEffect(() => {
+          if (!dragInfo) return;
+
+          const onPointerMove = (e) => {
+            const dx = e.clientX - dragInfo.startClientX;
+            const dy = e.clientY - dragInfo.startClientY;
+
+            if (dragInfo.type === 'pan') {
+              setPan({ x: dragInfo.origX + dx, y: dragInfo.origY + dy });
+              return;
+            }
+
+            if (dragInfo.type === 'item') {
+              const deltaMmX = dx / zoom;
+              const deltaMmY = dy / zoom;
+              setItems((prev) =>
+                prev.map((it) => {
+                  if (it.id !== dragInfo.itemId) return it;
+                  const effW = it.rotation % 180 === 0 ? it.widthMm : it.heightMm;
+                  const effH = it.rotation % 180 === 0 ? it.heightMm : it.widthMm;
+                  const nx = snapCoord(dragInfo.origX + deltaMmX, boardWidthMm, effW);
+                  const ny = snapCoord(dragInfo.origY + deltaMmY, boardHeightMm, effH);
+                  return { ...it, xMm: nx, yMm: ny };
+                })
+              );
+              if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+                dragInfo.moved = true;
+              }
+            }
+          };
+
+          const onPointerUp = () => {
+            if (dragInfo.type === 'item' && dragInfo.moved) {
+              setPast((prev) => [...prev.slice(-39), dragInfo.snapshotItems]);
+              setFuture([]);
+            }
+            setDragInfo(null);
+          };
+
+          window.addEventListener('pointermove', onPointerMove);
+          window.addEventListener('pointerup', onPointerUp);
+          return () => {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+          };
+        }, [dragInfo, zoom, snapCoord, boardWidthMm, boardHeightMm]);
+
+        // Smooth wheel zoom centered around cursor
+        const handleWheel = (e) => {
+          if (viewMode !== 'planner' || !viewportRef.current) return;
+          e.preventDefault();
+          const rect = viewportRef.current.getBoundingClientRect();
+          const cursorX = e.clientX - rect.left;
+          const cursorY = e.clientY - rect.top;
+          const factor = e.deltaY < 0 ? 1.1 : 0.91;
+          const nextZoom = Math.max(0.25, Math.min(2.8, zoom * factor));
+          const ratio = nextZoom / zoom;
+          setPan({
+            x: cursorX - (cursorX - pan.x) * ratio,
+            y: cursorY - (cursorY - pan.y) * ratio,
+          });
+          setZoom(nextZoom);
+        };
+
+        // HTML5 Drag & Drop from catalog card onto pegboard canvas
+        const handleCanvasDrop = (e) => {
+          e.preventDefault();
+          const toolId = e.dataTransfer.getData('text/tool-id');
+          if (!toolId || !viewportRef.current) return;
+          const catalogTool = TOOL_CATALOG.find((t) => t.id === toolId);
+          if (!catalogTool) return;
+          const rect = viewportRef.current.getBoundingClientRect();
+          const xMm = (e.clientX - rect.left - pan.x) / zoom;
+          const yMm = (e.clientY - rect.top - pan.y) / zoom;
+          addToolToBoard(catalogTool, { xMm, yMm });
+        };
+
+        const filteredTools = useMemo(() => {
+          const q = searchQuery.trim().toLowerCase();
+          return TOOL_CATALOG.filter((tool) => {
+            const matchesCat = categoryFilter === 'All' || tool.category === categoryFilter;
+            const matchesQuery =
+              !q ||
+              tool.name.toLowerCase().includes(q) ||
+              tool.subtitle.toLowerCase().includes(q) ||
+              tool.tags.some((t) => t.includes(q));
+            return matchesCat && matchesQuery;
+          });
+        }, [searchQuery, categoryFilter]);
+
+        const selectedItem = items.find((i) => i.id === selectedId) || null;
+        const totalParts = items.length;
+
+        const exportJsonLayout = () => {
+          const blob = new Blob([JSON.stringify({ board, mount, items }, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'pegboard-plan.json';
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        const railItems = [
+          { id: 'board', label: 'Board', icon: 'board' },
+          { id: 'add', label: 'Add items', icon: 'plus' },
+          { id: 'edit', label: 'Edit', icon: 'edit' },
+          { id: 'mount', label: 'Mount', icon: 'mount' },
+          { id: 'print', label: 'Print plan', icon: 'print' },
+        ];
+
+        return (
+          <div className="flex flex-col h-screen w-screen bg-[#0b1523] text-slate-100 overflow-hidden">
+            {/* TOP APP BAR */}
+            <header className="no-print h-14 shrink-0 px-5 border-b border-[#1b2e47] bg-[#0d192b] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-[#162943] border border-[#2b4970] flex items-center justify-center text-sky-300 shrink-0">
+                  <Icon name="board" className="w-4 h-4" />
+                </div>
+                <h1 className="text-base sm:text-lg font-semibold tracking-tight text-slate-100 truncate">
+                  Pegboard Organizer
+                </h1>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                <span className="hidden md:inline text-xs text-slate-400 mr-2 whitespace-nowrap">
+                  {saveNotice}
+                </span>
+                <button
+                  onClick={handleUndo}
+                  disabled={past.length === 0}
+                  title="Undo (Ctrl+Z)"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#132338] border border-[#243b5c] text-slate-200 hover:border-sky-400/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                >
+                  <Icon name="undo" className="w-3.5 h-3.5" />
+                  <span>Undo</span>
+                </button>
+                <button
+                  onClick={handleRedo}
+                  disabled={future.length === 0}
+                  title="Redo (Ctrl+Y)"
+                  className="flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-medium bg-[#132338] border border-[#243b5c] text-slate-200 hover:border-sky-400/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Icon name="redo" className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setActiveRail('print')}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-sky-200 text-slate-950 hover:bg-sky-100 transition-colors whitespace-nowrap"
+                >
+                  <Icon name="print" className="w-3.5 h-3.5" />
+                  <span>Print plan</span>
+                </button>
+              </div>
+            </header>
+
+            {/* MAIN WORKSPACE */}
+            <div className="flex-1 flex min-h-0 overflow-hidden">
+              {/* FAR-LEFT NARROW VERKTØYLINJE (TOOL RAIL) */}
+              <nav
+                aria-label="Workspace sections"
+                className="no-print w-[76px] shrink-0 bg-[#0b1523] border-r border-[#1b2e47] flex flex-col items-center py-3 gap-1.5"
+              >
+                {railItems.map((tab) => {
+                  const isActive = activeRail === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveRail(tab.id)}
+                      className={`w-[62px] py-2.5 px-1 rounded-lg flex flex-col items-center justify-center gap-1.5 text-[11px] font-medium transition-colors ${
+                        isActive
+                          ? 'bg-[#172b45] text-sky-200 border border-[#3b6ca8]'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-[#112035] border border-transparent'
+                      }`}
+                    >
+                      <Icon name={tab.icon} className="w-4 h-4" />
+                      <span className="leading-none whitespace-nowrap">{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* EXPANDED LEFT SIDEBAR PANEL */}
+              <aside className="no-print w-[308px] shrink-0 bg-[#0f1c2e] border-r border-[#1b2e47] flex flex-col min-h-0">
+                {/* ---------------------------------------------------------- */}
+                {/* TAB: ADD ITEMS (Search + Tool Cards)                       */}
+                {/* ---------------------------------------------------------- */}
+                {activeRail === 'add' && (
+                  <div className="flex flex-col h-full min-h-0">
+                    <div className="p-4 border-b border-[#1b2e47] space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-sm font-semibold text-slate-100">Add items</h2>
+                        <span className="text-xs text-slate-400 tabular-nums">{filteredTools.length} tools</span>
+                      </div>
+
+                      {/* Search input */}
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                          <Icon name="search" className="w-4 h-4" />
+                        </span>
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search tools & racks..."
+                          className="w-full pl-9 pr-8 py-2 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400"
+                        />
+                        {searchQuery && (
+                          <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                            aria-label="Clear search"
+                          >
+                            <Icon name="x" className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Category segmented filter */}
+                      <div className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-[#0b1523] border border-[#1b2e47]">
+                        {['All', 'Hand tools', 'Racks'].map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => setCategoryFilter(cat)}
+                            className={`py-1.5 px-2 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                              categoryFilter === cat
+                                ? 'bg-[#1a304d] text-sky-200'
+                                : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Tool cards list */}
+                    <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+                      {filteredTools.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-slate-400">
+                          No tools match "{searchQuery}".
+                        </div>
+                      ) : (
+                        filteredTools.map((tool) => {
+                          const dims = computeItemDimensions(tool.id, tool.defaultConfig);
+                          return (
+                            <button
+                              key={tool.id}
+                              draggable
+                              onDragStart={(e) => {
+                                e.dataTransfer.setData('text/tool-id', tool.id);
+                              }}
+                              onMouseEnter={() => setHoverCatalogId(tool.id)}
+                              onMouseLeave={() => setHoverCatalogId(null)}
+                              onClick={() => addToolToBoard(tool)}
+                              className="w-full text-left p-3 rounded-xl bg-[#132338] border border-[#223959] hover:border-sky-400/70 hover:bg-[#172b45] transition-colors group flex items-center gap-3"
+                            >
+                              {/* SVG miniature preview */}
+                              <div className="w-14 h-14 rounded-lg bg-[#0b1523] border border-[#1d324f] flex items-center justify-center shrink-0 p-1.5">
+                                <svg
+                                  viewBox={`-4 -4 ${dims.widthMm + 8} ${dims.heightMm + 8}`}
+                                  className="w-full h-full"
+                                  preserveAspectRatio="xMidYMid meet"
+                                >
+                                  <ToolIllustrationSVG
+                                    item={{
+                                      type: tool.id,
+                                      widthMm: dims.widthMm,
+                                      heightMm: dims.heightMm,
+                                      config: tool.defaultConfig,
+                                    }}
+                                    showTool={true}
+                                    isPreview={true}
+                                  />
+                                </svg>
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-sm font-semibold text-slate-100 truncate">
+                                    {tool.name}
+                                  </span>
+                                  <span className="text-xs font-medium text-sky-300 opacity-80 group-hover:opacity-100 shrink-0">
+                                    + Add
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-400 truncate mt-0.5">{tool.subtitle}</p>
+                                <div className="text-[11px] text-slate-500 font-mono tabular-nums mt-1">
+                                  {Math.round(dims.widthMm)} × {Math.round(dims.heightMm)} mm · {tool.category}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    <div className="p-3 border-t border-[#1b2e47] text-[11px] text-slate-400">
+                      Click any card or drag it onto the pegboard to place.
+                    </div>
+                  </div>
+                )}
+
+                {/* ---------------------------------------------------------- */}
+                {/* TAB: EDIT ITEM (Matches screenshot layout)                 */}
+                {/* ---------------------------------------------------------- */}
+                {activeRail === 'edit' && (
+                  <div className="flex flex-col h-full min-h-0 overflow-y-auto p-4 space-y-4">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1.5">Item to edit</label>
+                      <select
+                        value={selectedId || ''}
+                        onChange={(e) => setSelectedId(e.target.value || null)}
+                        className="w-full px-3 py-2 rounded-lg bg-[#0b1523] border border-[#243b5c] text-sm text-slate-100 focus:outline-none focus:border-sky-400"
+                      >
+                        {items.length === 0 && <option value="">No items on board</option>}
+                        {items.map((it) => (
+                          <option key={it.id} value={it.id}>
+                            {it.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {!selectedItem ? (
+                      <div className="p-4 rounded-xl bg-[#132338] border border-[#223959] text-xs text-slate-300 space-y-2">
+                        <p>Select an item on the pegboard or add one from the catalog.</p>
+                        <button
+                          onClick={() => setActiveRail('add')}
+                          className="w-full py-2 rounded-lg bg-sky-200 text-slate-950 font-semibold text-xs hover:bg-sky-100"
+                        >
+                          Browse tools
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <h2 className="text-lg font-semibold text-slate-100 truncate">{selectedItem.name}</h2>
+                          <span className="text-xs text-sky-300 font-mono tabular-nums whitespace-nowrap">
+                            {selectedItem.widthMm} × {selectedItem.heightMm} mm
+                          </span>
+                        </div>
+
+                        {/* Wrench rack specific controls (like in screenshot) */}
+                        {selectedItem.type === 'wrench_rack' && (
+                          <div className="space-y-3 pt-1">
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() =>
+                                  updateSelectedItem({
+                                    config: { unit: 'mm', sizes: [8, 10, 12, 13, 14, 17, 19] },
+                                  })
+                                }
+                                className="py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                              >
+                                Metric starter
+                              </button>
+                              <button
+                                onClick={() =>
+                                  updateSelectedItem({
+                                    config: { unit: 'in', sizes: [0.375, 0.438, 0.5, 0.563, 0.625, 0.75] },
+                                  })
+                                }
+                                className="py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                              >
+                                SAE starter
+                              </button>
+                            </div>
+
+                            <div>
+                              <div className="text-xs font-medium text-slate-300 mb-2">Your wrenches</div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {selectedItem.config.sizes.map((sz, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#132338] border border-[#2c4a70] text-xs font-mono tabular-nums text-slate-100"
+                                  >
+                                    <span>
+                                      {sz} {selectedItem.config.unit}
+                                    </span>
+                                    {selectedItem.config.sizes.length > 1 && (
+                                      <button
+                                        onClick={() =>
+                                          updateSelectedItem({
+                                            config: {
+                                              ...selectedItem.config,
+                                              sizes: selectedItem.config.sizes.filter((_, i) => i !== idx),
+                                            },
+                                          })
+                                        }
+                                        className="text-slate-400 hover:text-rose-300 ml-0.5"
+                                        title="Remove wrench"
+                                      >
+                                        ×
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                                <button
+                                  onClick={() => {
+                                    const last = selectedItem.config.sizes[selectedItem.config.sizes.length - 1] || 19;
+                                    const nextVal = selectedItem.config.unit === 'mm' ? Number(last) + 2 : Number((Number(last) + 0.125).toFixed(3));
+                                    updateSelectedItem({
+                                      config: {
+                                        ...selectedItem.config,
+                                        sizes: [...selectedItem.config.sizes, nextVal],
+                                      },
+                                    });
+                                  }}
+                                  className="px-2.5 py-1 rounded-md bg-[#182b44] border border-sky-400/40 text-xs font-medium text-sky-200 hover:bg-[#1f3654]"
+                                >
+                                  + Add wrench
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Bit rack specific controls */}
+                        {selectedItem.type === 'bit_rack' && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-slate-300">Bit slots</span>
+                              <span className="font-mono tabular-nums text-sky-300">
+                                {selectedItem.config.bits.length} bits
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="4"
+                              max="16"
+                              value={selectedItem.config.bits.length}
+                              onChange={(e) => {
+                                const count = Number(e.target.value);
+                                const presets = ['T10', 'T15', 'T20', 'T25', 'T30', 'PH1', 'PH2', 'PH3', 'PZ1', 'PZ2', 'SL4', 'SL5', 'HEX3', 'HEX4', 'HEX5', 'HEX6'];
+                                updateSelectedItem({
+                                  config: { ...selectedItem.config, bits: presets.slice(0, count), bitCount: count },
+                                });
+                              }}
+                              className="w-full accent-sky-400"
+                            />
+                          </div>
+                        )}
+
+                        {/* Position & rotation */}
+                        <div className="pt-2 border-t border-[#1b2e47] space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">X Position (mm)</label>
+                              <input
+                                type="number"
+                                step={snapToGrid ? board.pitch : 1}
+                                value={Math.round(selectedItem.xMm * 10) / 10}
+                                onChange={(e) =>
+                                  updateSelectedItem({
+                                    xMm: snapCoord(Number(e.target.value), boardWidthMm, selectedItem.widthMm),
+                                  })
+                                }
+                                className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-slate-400 mb-1">Y Position (mm)</label>
+                              <input
+                                type="number"
+                                step={snapToGrid ? board.pitch : 1}
+                                value={Math.round(selectedItem.yMm * 10) / 10}
+                                onChange={(e) =>
+                                  updateSelectedItem({
+                                    yMm: snapCoord(Number(e.target.value), boardHeightMm, selectedItem.heightMm),
+                                  })
+                                }
+                                className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                              />
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => updateSelectedItem({ rotation: (selectedItem.rotation + 90) % 360 })}
+                            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                          >
+                            <Icon name="rotate" className="w-3.5 h-3.5" />
+                            <span>Rotate 90° ({selectedItem.rotation}°)</span>
+                          </button>
+                        </div>
+
+                        {/* Item name & actions */}
+                        <div className="pt-2 border-t border-[#1b2e47] space-y-3">
+                          <div>
+                            <label className="block text-xs text-slate-400 mb-1">Item name</label>
+                            <input
+                              type="text"
+                              value={selectedItem.name}
+                              onChange={(e) => updateSelectedItem({ name: e.target.value })}
+                              className="w-full px-3 py-2 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs text-slate-100 focus:outline-none focus:border-sky-400"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              onClick={() => duplicateItem(selectedItem.id)}
+                              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                            >
+                              <Icon name="copy" className="w-3.5 h-3.5" />
+                              <span>Duplicate</span>
+                            </button>
+                            <button
+                              onClick={() => removeItem(selectedItem.id)}
+                              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-rose-400/70 hover:text-rose-200 text-xs font-medium text-slate-200"
+                            >
+                              <Icon name="trash" className="w-3.5 h-3.5" />
+                              <span>Remove</span>
+                            </button>
+                          </div>
+
+                          <button
+                            onClick={() => setViewMode('3d')}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-[#172b45] border border-sky-400/50 text-xs font-semibold text-sky-200 hover:bg-[#1f3654]"
+                          >
+                            <Icon name="cube" className="w-4 h-4" />
+                            <span>Inspect this item in 3D</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* ---------------------------------------------------------- */}
+                {/* TAB: BOARD SETTINGS                                        */}
+                {/* ---------------------------------------------------------- */}
+                {activeRail === 'board' && (
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div>
+                      <h2 className="text-sm font-semibold text-slate-100">Board dimensions & grid</h2>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Configure your pegboard size, hole pitch, and finish.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs text-slate-400">Board presets</label>
+                      {BOARD_PRESETS.map((p) => {
+                        const active = board.cols === p.cols && board.rows === p.rows && board.pitch === p.pitch;
+                        return (
+                          <button
+                            key={p.id}
+                            onClick={() => setBoard({ ...board, cols: p.cols, rows: p.rows, pitch: p.pitch })}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-xs border transition-colors ${
+                              active
+                                ? 'bg-[#182b44] border-sky-400/60 text-sky-200 font-medium'
+                                : 'bg-[#132338] border-[#223959] text-slate-300 hover:border-sky-400/40'
+                            }`}
+                          >
+                            {p.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2.5 pt-1">
+                      <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Columns (holes)</label>
+                        <input
+                          type="number"
+                          min="8"
+                          max="80"
+                          value={board.cols}
+                          onChange={(e) => setBoard({ ...board, cols: Math.max(8, Math.min(80, Number(e.target.value) || 20)) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Rows (holes)</label>
+                        <input
+                          type="number"
+                          min="8"
+                          max="60"
+                          value={board.rows}
+                          onChange={(e) => setBoard({ ...board, rows: Math.max(8, Math.min(60, Number(e.target.value) || 20)) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Hole pitch (mm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="10"
+                          max="50"
+                          value={board.pitch}
+                          onChange={(e) => setBoard({ ...board, pitch: Math.max(10, Math.min(50, Number(e.target.value) || 25.4)) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Hole dia (mm)</label>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="3"
+                          max="12"
+                          value={board.holeDiameter}
+                          onChange={(e) => setBoard({ ...board, holeDiameter: Math.max(3, Math.min(12, Number(e.target.value) || 6)) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#1b2e47]">
+                      <div className="text-xs text-slate-400 mb-2">Board finish</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {BOARD_COLORS.map((c) => (
+                          <button
+                            key={c.id}
+                            onClick={() => setBoard({ ...board, colorId: c.id })}
+                            className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs border transition-colors ${
+                              board.colorId === c.id
+                                ? 'bg-[#182b44] border-sky-400/70 text-slate-100'
+                                : 'bg-[#132338] border-[#223959] text-slate-300'
+                            }`}
+                          >
+                            <span
+                              className="w-3.5 h-3.5 rounded-sm border border-white/20 shrink-0"
+                              style={{ backgroundColor: c.fill }}
+                            />
+                            <span className="truncate">{c.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-[#0b1523] border border-[#1b2e47] text-xs font-mono tabular-nums text-slate-300">
+                      Total size: {boardWidthMm.toFixed(1)} × {boardHeightMm.toFixed(1)} mm
+                    </div>
+                  </div>
+                )}
+
+                {/* ---------------------------------------------------------- */}
+                {/* TAB: MOUNT SETTINGS                                        */}
+                {/* ---------------------------------------------------------- */}
+                {activeRail === 'mount' && (
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div>
+                      <h2 className="text-sm font-semibold text-slate-100">Mount & clearance</h2>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Choose how 3D-printed holders lock into your pegboard.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      {MOUNT_STYLES.map((style) => (
+                        <button
+                          key={style.id}
+                          onClick={() => setMount({ ...mount, styleId: style.id, clearanceMm: style.clearance })}
+                          className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                            mount.styleId === style.id
+                              ? 'bg-[#182b44] border-sky-400/70 text-slate-100'
+                              : 'bg-[#132338] border-[#223959] text-slate-300 hover:border-sky-400/40'
+                          }`}
+                        >
+                          <div className="text-xs font-semibold">{style.name}</div>
+                          <div className="text-[11px] text-slate-400 font-mono tabular-nums mt-1">
+                            Pin: {style.pegDia} mm · Lift-out: {style.clearance} mm
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="pt-2 border-t border-[#1b2e47] space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-300">Default lift-out clearance</span>
+                        <span className="font-mono tabular-nums text-sky-300">{mount.clearanceMm} mm</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="20"
+                        max="80"
+                        value={mount.clearanceMm}
+                        onChange={(e) => setMount({ ...mount, clearanceMm: Number(e.target.value) })}
+                        className="w-full accent-sky-400"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* ---------------------------------------------------------- */}
+                {/* TAB: PRINT PLAN & EXPORT                                   */}
+                {/* ---------------------------------------------------------- */}
+                {activeRail === 'print' && (
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div>
+                      <h2 className="text-sm font-semibold text-slate-100">Print plan</h2>
+                      <p className="text-xs text-slate-400 mt-1">
+                        {totalParts} custom holder{totalParts === 1 ? '' : 's'} ready for 3D inspection & STL export.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      {items.length === 0 ? (
+                        <div className="p-4 rounded-lg bg-[#132338] border border-[#223959] text-xs text-slate-400">
+                          Your pegboard is empty. Add tools from the catalog to build a print plan.
+                        </div>
+                      ) : (
+                        items.map((it) => (
+                          <div
+                            key={it.id}
+                            onClick={() => setSelectedId(it.id)}
+                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                              selectedId === it.id
+                                ? 'bg-[#182b44] border-sky-400/60'
+                                : 'bg-[#132338] border-[#223959] hover:border-sky-400/40'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between text-xs font-semibold text-slate-100">
+                              <span className="truncate">{it.name}</span>
+                              <span className="text-sky-300 font-mono tabular-nums">1 part</span>
+                            </div>
+                            <div className="text-[11px] text-slate-400 font-mono tabular-nums mt-1">
+                              {it.widthMm} × {it.heightMm} mm · X:{Math.round(it.xMm)} Y:{Math.round(it.yMm)}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-[#1b2e47] space-y-2">
+                      <button
+                        onClick={() => setViewMode('3d')}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-sky-200 text-slate-950 font-semibold text-xs hover:bg-sky-100"
+                      >
+                        <Icon name="cube" className="w-4 h-4" />
+                        <span>Open 3D inspection & STL Export</span>
+                      </button>
+                      <button
+                        onClick={exportJsonLayout}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                      >
+                        <Icon name="download" className="w-3.5 h-3.5" />
+                        <span>Download layout (.json)</span>
+                      </button>
+                      <button
+                        onClick={() => window.print()}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                      >
+                        <Icon name="print" className="w-3.5 h-3.5" />
+                        <span>Print layout sheet</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </aside>
+
+              {/* CENTER MAIN WORKSPACE */}
+              <main className="flex-1 flex flex-col min-w-0 bg-[#132030] relative overflow-hidden">
+                {/* TOP CANVAS TOOLBAR */}
+                <div className="no-print h-12 shrink-0 px-4 border-b border-[#1b2e47] bg-[#0f1c2e] flex items-center justify-between gap-4">
+                  {/* View switcher tabs */}
+                  <div className="flex items-center p-0.5 rounded-lg bg-[#0b1523] border border-[#203552]">
+                    <button
+                      onClick={() => setViewMode('planner')}
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                        viewMode === 'planner'
+                          ? 'bg-[#172b45] text-sky-200 border border-[#3b6ca8]'
+                          : 'text-slate-400 hover:text-slate-200 border border-transparent'
+                      }`}
+                    >
+                      <Icon name="board" className="w-3.5 h-3.5" />
+                      <span>Board planner</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('3d')}
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                        viewMode === '3d'
+                          ? 'bg-[#172b45] text-sky-200 border border-[#3b6ca8]'
+                          : 'text-slate-400 hover:text-slate-200 border border-transparent'
+                      }`}
+                    >
+                      <Icon name="cube" className="w-3.5 h-3.5" />
+                      <span>3D inspection</span>
+                    </button>
+                  </div>
+
+                  {/* Right planner toggles */}
+                  <div className="flex items-center gap-4 text-xs">
+                    <button
+                      onClick={() => setSnapToGrid((v) => !v)}
+                      className="flex items-center gap-2 text-slate-200 hover:text-white whitespace-nowrap"
+                    >
+                      <span
+                        className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                          snapToGrid ? 'bg-sky-300 border-sky-300 text-slate-950' : 'bg-[#0b1523] border-[#334e73]'
+                        }`}
+                      >
+                        {snapToGrid && <Icon name="check" className="w-3 h-3" />}
+                      </span>
+                      <span>Snap to grid</span>
+                    </button>
+
+                    <button
+                      onClick={() => setShowYourTools((v) => !v)}
+                      className="hidden sm:flex items-center gap-2 text-slate-200 hover:text-white whitespace-nowrap"
+                    >
+                      <span
+                        className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                          showYourTools ? 'bg-sky-300 border-sky-300 text-slate-950' : 'bg-[#0b1523] border-[#334e73]'
+                        }`}
+                      >
+                        {showYourTools && <Icon name="check" className="w-3 h-3" />}
+                      </span>
+                      <span>Your tools</span>
+                    </button>
+
+                    <button
+                      onClick={() => setShowLiftOut((v) => !v)}
+                      className="hidden md:flex items-center gap-2 text-slate-200 hover:text-white whitespace-nowrap"
+                    >
+                      <span
+                        className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                          showLiftOut ? 'bg-sky-300 border-sky-300 text-slate-950' : 'bg-[#0b1523] border-[#334e73]'
+                        }`}
+                      >
+                        {showLiftOut && <Icon name="check" className="w-3 h-3" />}
+                      </span>
+                      <span>Lift-out space</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* VIEWPORT AREA: 2D PLANNER OR 3D INSPECTION */}
+                <div className="flex-1 relative min-h-0 overflow-hidden">
+                  {viewMode === '3d' ? (
+                    <ThreeDInspectionView
+                      board={board}
+                      items={items}
+                      selectedId={selectedId}
+                      onSelect={setSelectedId}
+                    />
+                  ) : (
+                    <div
+                      ref={viewportRef}
+                      onPointerDown={handleViewportPointerDown}
+                      onWheel={handleWheel}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={handleCanvasDrop}
+                      className="w-full h-full relative overflow-hidden cursor-grab active:cursor-grabbing"
+                      style={{
+                        backgroundImage: 'radial-gradient(rgba(148,163,184,0.08) 1px, transparent 1px)',
+                        backgroundSize: '22px 22px',
+                      }}
+                    >
+                      {/* Transformed SVG Pegboard World */}
+                      <svg
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                        style={{ overflow: 'visible' }}
+                      >
+                        <defs>
+                          <linearGradient id="chromeGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#94a3b8" />
+                            <stop offset="45%" stopColor="#e2e8f0" />
+                            <stop offset="100%" stopColor="#94a3b8" />
+                          </linearGradient>
+                          <pattern
+                            id="pegHolesPattern"
+                            width={board.pitch}
+                            height={board.pitch}
+                            patternUnits="userSpaceOnUse"
+                          >
+                            <circle
+                              cx={board.pitch / 2}
+                              cy={board.pitch / 2}
+                              r={board.holeDiameter / 2}
+                              fill={boardColorObj.hole}
+                              stroke="rgba(255,255,255,0.06)"
+                              strokeWidth="0.4"
+                            />
+                          </pattern>
+                          <pattern
+                            id="liftOutHatch"
+                            width="8"
+                            height="8"
+                            patternTransform="rotate(45)"
+                            patternUnits="userSpaceOnUse"
+                          >
+                            <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(125,211,252,0.28)" strokeWidth="2" />
+                          </pattern>
+                        </defs>
+
+                        <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`} className="pointer-events-auto">
+                          {/* Pegboard outer shadow */}
+                          <rect
+                            x={4}
+                            y={6}
+                            width={boardWidthMm}
+                            height={boardHeightMm}
+                            rx={6}
+                            fill="rgba(3, 7, 15, 0.55)"
+                          />
+
+                          {/* Pegboard base plate */}
+                          <rect
+                            data-board-bg="true"
+                            x={0}
+                            y={0}
+                            width={boardWidthMm}
+                            height={boardHeightMm}
+                            rx={6}
+                            fill={boardColorObj.fill}
+                            stroke={boardColorObj.rim}
+                            strokeWidth={1.6}
+                          />
+
+                          {/* Pegboard holes grid */}
+                          <rect
+                            data-board-bg="true"
+                            x={0}
+                            y={0}
+                            width={boardWidthMm}
+                            height={boardHeightMm}
+                            rx={6}
+                            fill="url(#pegHolesPattern)"
+                          />
+
+                          {/* Left vertical dimension indicator */}
+                          <g className="pointer-events-none">
+                            <line x1={-16} y1={0} x2={-16} y2={boardHeightMm} stroke="#3b5a80" strokeWidth={1.1} />
+                            <line x1={-21} y1={0} x2={-11} y2={0} stroke="#3b5a80" strokeWidth={1.1} />
+                            <line x1={-21} y1={boardHeightMm} x2={-11} y2={boardHeightMm} stroke="#3b5a80" strokeWidth={1.1} />
+                            <text
+                              x={-24}
+                              y={boardHeightMm / 2}
+                              textAnchor="middle"
+                              fill="#7dd3fc"
+                              fontSize="11"
+                              fontFamily="JetBrains Mono, monospace"
+                              transform={`rotate(-90, -24, ${boardHeightMm / 2})`}
+                            >
+                              {boardHeightMm.toFixed(1)} mm
+                            </text>
+                          </g>
+
+                          {/* Top horizontal dimension indicator */}
+                          <g className="pointer-events-none">
+                            <line x1={0} y1={-16} x2={boardWidthMm} y2={-16} stroke="#3b5a80" strokeWidth={1.1} />
+                            <line x1={0} y1={-21} x2={0} y2={-11} stroke="#3b5a80" strokeWidth={1.1} />
+                            <line x1={boardWidthMm} y1={-21} x2={boardWidthMm} y2={-11} stroke="#3b5a80" strokeWidth={1.1} />
+                            <text
+                              x={boardWidthMm / 2}
+                              y={-22}
+                              textAnchor="middle"
+                              fill="#7dd3fc"
+                              fontSize="11"
+                              fontFamily="JetBrains Mono, monospace"
+                            >
+                              {boardWidthMm.toFixed(1)} mm
+                            </text>
+                          </g>
+
+                          {/* Placed tools on pegboard */}
+                          {items.map((item) => {
+                            const isSelected = item.id === selectedId;
+                            const liftMm = item.liftOutMm || mount.clearanceMm || 38;
+                            return (
+                              <g
+                                key={item.id}
+                                transform={`translate(${item.xMm}, ${item.yMm}) rotate(${item.rotation}, ${item.widthMm / 2}, ${item.heightMm / 2})`}
+                                onPointerDown={(e) => handleItemPointerDown(e, item)}
+                                className="cursor-move"
+                              >
+                                {/* Optional lift-out clearance zone above item */}
+                                {showLiftOut && (
+                                  <rect
+                                    x={0}
+                                    y={-liftMm}
+                                    width={item.widthMm}
+                                    height={liftMm}
+                                    rx={3}
+                                    fill="url(#liftOutHatch)"
+                                    stroke="rgba(125,211,252,0.5)"
+                                    strokeWidth={0.9}
+                                    strokeDasharray="4 3"
+                                  />
+                                )}
+
+                                {/* Tool + Holder illustration */}
+                                <ToolIllustrationSVG item={item} showTool={showYourTools} />
+
+                                {/* Hover / Selection bounding box */}
+                                <rect
+                                  x={-2}
+                                  y={-2}
+                                  width={item.widthMm + 4}
+                                  height={item.heightMm + 4}
+                                  rx={4}
+                                  fill="transparent"
+                                  stroke={isSelected ? '#93c5fd' : 'rgba(148,163,184,0.22)'}
+                                  strokeWidth={isSelected ? 2 / Math.max(0.5, zoom) : 0.8}
+                                />
+
+                                {/* Floating title pill above non-selected items or selected items */}
+                                {!isSelected && (
+                                  <g transform={`translate(${item.widthMm / 2}, -10)`}>
+                                    <rect
+                                      x={-Math.max(36, item.name.length * 3.4)}
+                                      y={-12}
+                                      width={Math.max(72, item.name.length * 6.8)}
+                                      height={16}
+                                      rx={4}
+                                      fill="#0d1829"
+                                      stroke="#2d4a70"
+                                      strokeWidth={0.9}
+                                    />
+                                    <text
+                                      x={0}
+                                      y={-1.5}
+                                      textAnchor="middle"
+                                      fill="#e2e8f0"
+                                      fontSize="8.5"
+                                      fontWeight="500"
+                                    >
+                                      {item.name}
+                                    </text>
+                                  </g>
+                                )}
+                              </g>
+                            );
+                          })}
+                        </g>
+                      </svg>
+
+                      {/* Bottom-left subtle canvas hint */}
+                      <div className="no-print absolute bottom-3 left-4 pointer-events-none text-xs text-slate-400">
+                        Select an item to edit · drag to move · drag empty board to pan · scroll to zoom
+                      </div>
+
+                      {/* Bottom-right zoom controls */}
+                      <div className="no-print absolute bottom-3 right-4 flex items-center gap-1.5 bg-[#0f1c2e]/95 border border-[#243b5c] rounded-lg p-1">
+                        <button
+                          onClick={zoomToItem}
+                          disabled={!selectedItem}
+                          className="px-2.5 py-1.5 rounded text-xs font-medium text-slate-200 hover:bg-[#192e4a] disabled:opacity-40 whitespace-nowrap"
+                        >
+                          Zoom to item
+                        </button>
+                        <button
+                          onClick={() => setZoom((z) => Math.max(0.25, Number((z * 0.85).toFixed(2))))}
+                          aria-label="Zoom out"
+                          className="w-7 h-7 rounded flex items-center justify-center text-slate-200 hover:bg-[#192e4a]"
+                        >
+                          <Icon name="minus" className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={fitBoard}
+                          className="px-2.5 py-1.5 rounded text-xs font-medium text-slate-200 hover:bg-[#192e4a] whitespace-nowrap tabular-nums"
+                        >
+                          Fit board ({Math.round(zoom * 100)}%)
+                        </button>
+                        <button
+                          onClick={() => setZoom((z) => Math.min(2.8, Number((z * 1.18).toFixed(2))))}
+                          aria-label="Zoom in"
+                          className="w-7 h-7 rounded flex items-center justify-center text-slate-200 hover:bg-[#192e4a]"
+                        >
+                          <Icon name="plus" className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* BOTTOM SELECTION & STATUS BAR (Matches screenshot footer) */}
+                <div className="no-print h-14 shrink-0 px-5 border-t border-[#1b2e47] bg-[#0d192b] flex items-center justify-between gap-4">
+                  {selectedItem ? (
+                    <>
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-slate-100 truncate">
+                            {selectedItem.name}
+                          </div>
+                          <div className="text-xs text-slate-400 font-mono tabular-nums truncate">
+                            {selectedItem.widthMm} × {selectedItem.heightMm} mm · Hole (
+                            {Math.round(selectedItem.xMm / board.pitch)},{' '}
+                            {Math.round(selectedItem.yMm / board.pitch)})
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => setViewMode(viewMode === '3d' ? 'planner' : '3d')}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200 whitespace-nowrap"
+                        >
+                          <Icon name="cube" className="w-3.5 h-3.5" />
+                          <span>{viewMode === '3d' ? 'Back to 2D' : 'View holder'}</span>
+                        </button>
+                        <button
+                          onClick={() => setActiveRail('edit')}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200 whitespace-nowrap"
+                        >
+                          <Icon name="edit" className="w-3.5 h-3.5" />
+                          <span>Edit item</span>
+                        </button>
+                        <button
+                          onClick={() => removeItem(selectedItem.id)}
+                          aria-label="Delete selected item"
+                          className="flex items-center justify-center p-1.5 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-rose-400/70 text-slate-300 hover:text-rose-200"
+                        >
+                          <Icon name="trash" className="w-4 h-4" />
+                        </button>
+                        <span className="hidden lg:inline-flex items-center gap-1.5 ml-2 text-xs text-slate-400 tabular-nums whitespace-nowrap">
+                          <Icon name="check" className="w-3.5 h-3.5 text-sky-300" />
+                          {totalParts} {totalParts === 1 ? 'part' : 'parts'} ready
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-xs text-slate-400">
+                        Click a tool card on the left to add it, or select any placed item to edit.
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-400 tabular-nums whitespace-nowrap">
+                        <Icon name="check" className="w-3.5 h-3.5 text-sky-300" />
+                        <span>
+                          {totalParts} {totalParts === 1 ? 'part' : 'parts'} ready
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </main>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
