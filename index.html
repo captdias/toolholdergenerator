@@ -112,9 +112,9 @@
       ];
 
       const MOUNT_STYLES = [
-        { id: 'standard_peg', name: 'Standard 1/4" krok', pegDia: 6.0, clearance: 38 },
-        { id: 'locking_screw', name: 'Låsbar skrueplugg', pegDia: 6.2, clearance: 32 },
-        { id: 'skadis_tab', name: 'Spor / Skådis T-krok', pegDia: 5.0, clearance: 35 },
+        { id: 'screw_std', name: 'Gjennomgående skruehull (5 × 6,5 mm)', screwDia: 5.0, screwLen: 6.5, holeDia: 5.2, clearance: 38 },
+        { id: 'screw_csk', name: 'Forsenket skruehull (5 × 6,5 mm)', screwDia: 5.0, screwLen: 6.5, holeDia: 5.2, clearance: 35 },
+        { id: 'screw_double', name: 'Dobbel skruerekke (5 × 6,5 mm)', screwDia: 5.0, screwLen: 6.5, holeDia: 5.2, clearance: 38 },
       ];
 
       const TOOL_CATALOG = [
@@ -123,10 +123,19 @@
           name: 'Tang',
           category: 'Håndverktøy',
           subtitle: 'Holder for universaltang',
-          defaultWidthMm: 76.2,
-          defaultHeightMm: 177.8,
+          defaultWidthMm: 85.6,
+          defaultHeightMm: 206.7,
           liftOutMm: 44,
-          defaultConfig: {},
+          defaultConfig: {
+            keepProportions: true,
+            overallLengthMm: 192.7,
+            handleSpreadMm: 69.6,
+            jawToShoulderMm: 82.4,
+            neckWidthMm: 35.4,
+            headWidthMm: 45.7,
+            thicknessMm: 17.1,
+            centerFromBoardMm: 32.0,
+          },
           tags: ['tang', 'kombinasjonstang', 'universaltang', 'håndverktøy'],
         },
         {
@@ -134,10 +143,19 @@
           name: 'Spisstang',
           category: 'Håndverktøy',
           subtitle: 'Smal holder for nebbtang',
-          defaultWidthMm: 72.0,
-          defaultHeightMm: 186.0,
+          defaultWidthMm: 76.2,
+          defaultHeightMm: 200.0,
           liftOutMm: 44,
-          defaultConfig: {},
+          defaultConfig: {
+            keepProportions: true,
+            overallLengthMm: 186.0,
+            handleSpreadMm: 58.0,
+            jawToShoulderMm: 86.0,
+            neckWidthMm: 26.0,
+            headWidthMm: 34.0,
+            thicknessMm: 14.0,
+            centerFromBoardMm: 30.0,
+          },
           tags: ['spisstang', 'nebbtang', 'radiotang', 'presisjon'],
         },
         {
@@ -145,10 +163,19 @@
           name: 'Avbiter',
           category: 'Håndverktøy',
           subtitle: 'Kort holder for sideavbiter',
-          defaultWidthMm: 74.0,
-          defaultHeightMm: 164.0,
+          defaultWidthMm: 80.0,
+          defaultHeightMm: 178.0,
           liftOutMm: 42,
-          defaultConfig: {},
+          defaultConfig: {
+            keepProportions: true,
+            overallLengthMm: 164.0,
+            handleSpreadMm: 64.0,
+            jawToShoulderMm: 68.0,
+            neckWidthMm: 32.0,
+            headWidthMm: 42.0,
+            thicknessMm: 16.0,
+            centerFromBoardMm: 31.0,
+          },
           tags: ['avbiter', 'sideavbiter', 'kutter', 'kabel'],
         },
         {
@@ -164,17 +191,32 @@
         },
         {
           id: 'bitsholder',
-          name: 'Bitsholder',
+          name: 'Bits- og borholder',
           category: 'Holdere',
-          subtitle: 'Skinne for 1/4" sekskantbits',
-          defaultWidthMm: 127.0,
-          defaultHeightMm: 44.5,
-          liftOutMm: 32,
+          subtitle: '1- eller 2-rads holder for bor og 1/4"-bits',
+          defaultWidthMm: 165.12,
+          defaultHeightMm: 64.0,
+          liftOutMm: 36,
           defaultConfig: {
-            bits: ['T15', 'T20', 'T25', 'PH1', 'PH2', 'PZ2', 'SL5', 'H4', 'H5', 'H6'],
-            bitCount: 10,
+            pocketDepthMm: 12,
+            pockets: [
+              { kind: 'drill', label: '3 mm', clearanceMm: 0.35 },
+              { kind: 'drill', label: '4 mm', clearanceMm: 0.35 },
+              { kind: 'drill', label: '5 mm', clearanceMm: 0.35 },
+              { kind: 'driver', label: 'PH1', clearanceMm: 0.35 },
+              { kind: 'driver', label: 'PH2', clearanceMm: 0.35 },
+              { kind: 'driver', label: 'T20', clearanceMm: 0.35 },
+              { kind: 'drill', label: '10 mm', clearanceMm: 0.4 },
+              { kind: 'driver', label: 'T25', clearanceMm: 0.35 },
+              { kind: 'drill', label: '5 mm', clearanceMm: 0.35 },
+              { kind: 'drill', label: '8 mm', clearanceMm: 0.4 },
+              { kind: 'driver', label: 'T20', clearanceMm: 0.35 },
+              { kind: 'driver', label: 'T15', clearanceMm: 0.35 },
+              { kind: 'driver', label: 'T10', clearanceMm: 0.35 },
+              { kind: 'driver', label: 'T30', clearanceMm: 0.35 },
+            ],
           },
-          tags: ['bitsholder', 'bits', 'torx', 'skrubits', 'holder'],
+          tags: ['bitsholder', 'borholder', 'bits', 'bor', 'torx', 'skrubits', 'holder'],
         },
         {
           id: 'fastnokkelholder',
@@ -192,7 +234,7 @@
           name: 'Skrutrekkerholder',
           category: 'Holdere',
           subtitle: '5-spors vertikal skrutrekkerlist',
-          defaultWidthMm: 177.8,
+          defaultWidthMm: 178.0,
           defaultHeightMm: 210.0,
           liftOutMm: 46,
           defaultConfig: { slots: 5 },
@@ -203,7 +245,7 @@
           name: 'Målebånd',
           category: 'Håndverktøy',
           subtitle: 'Belteklips-brakett for målebånd',
-          defaultWidthMm: 88.9,
+          defaultWidthMm: 76.2,
           defaultHeightMm: 101.6,
           liftOutMm: 38,
           defaultConfig: {},
@@ -211,28 +253,440 @@
         },
       ];
 
+      const DEFAULT_BIT_POCKETS = [
+        { kind: 'drill', label: '3 mm', clearanceMm: 0.35 },
+        { kind: 'drill', label: '4 mm', clearanceMm: 0.35 },
+        { kind: 'drill', label: '5 mm', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'PH1', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'PH2', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'T20', clearanceMm: 0.35 },
+        { kind: 'drill', label: '10 mm', clearanceMm: 0.4 },
+        { kind: 'driver', label: 'T25', clearanceMm: 0.35 },
+        { kind: 'drill', label: '5 mm', clearanceMm: 0.35 },
+        { kind: 'drill', label: '8 mm', clearanceMm: 0.4 },
+        { kind: 'driver', label: 'T20', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'T15', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'T10', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'T30', clearanceMm: 0.35 },
+      ];
+
+      const EXTRA_BIT_POCKETS = [
+        { kind: 'drill', label: '6 mm', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'PZ2', clearanceMm: 0.35 },
+        { kind: 'drill', label: '1/8"', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'H4', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'H5', clearanceMm: 0.35 },
+        { kind: 'drill', label: '7 mm', clearanceMm: 0.35 },
+        { kind: 'driver', label: 'SL5', clearanceMm: 0.35 },
+        { kind: 'drill', label: '9 mm', clearanceMm: 0.4 },
+        { kind: 'driver', label: 'T40', clearanceMm: 0.35 },
+        { kind: 'drill', label: '12 mm', clearanceMm: 0.4 },
+      ];
+
+      function parsePocketDiameterMm(label, kind, customDiameterMm) {
+        if (customDiameterMm !== undefined && customDiameterMm !== null && customDiameterMm !== '') {
+          const parsed = Number(customDiameterMm);
+          if (Number.isFinite(parsed) && parsed > 0) {
+            return Math.max(1.5, Math.min(22, Number(parsed.toFixed(2))));
+          }
+        }
+        if (kind === 'driver') return 6.35;
+        const s = String(label || '').trim().replace(',', '.');
+        const fracMatch = s.match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+        if (fracMatch) {
+          const num = Number(fracMatch[1]);
+          const den = Number(fracMatch[2]);
+          if (den > 0) {
+            return Math.max(1.5, Math.min(22, Number(((num / den) * 25.4).toFixed(2))));
+          }
+        }
+        const numMatch = s.match(/(\d+(?:\.\d+)?)/);
+        if (numMatch) {
+          const val = Number(numMatch[1]);
+          if (Number.isFinite(val) && val > 0) {
+            return Math.max(1.5, Math.min(22, Number(val.toFixed(2))));
+          }
+        }
+        return 5.0;
+      }
+
+      function normalizeBitRackConfig(config) {
+        let pockets = [];
+        if (config && Array.isArray(config.pockets) && config.pockets.length > 0) {
+          pockets = config.pockets.map((p) => ({
+            kind: p.kind === 'drill' ? 'drill' : 'driver',
+            label: String(p.label ?? ''),
+            clearanceMm: Number.isFinite(Number(p.clearanceMm)) ? Math.max(0, Math.min(2.0, Number(p.clearanceMm))) : 0.35,
+            customDiameterMm:
+              p.customDiameterMm !== undefined && p.customDiameterMm !== null && p.customDiameterMm !== ''
+                ? Number(p.customDiameterMm)
+                : null,
+          }));
+        } else if (config && Array.isArray(config.bits) && config.bits.length > 0) {
+          pockets = config.bits.map((lbl) => {
+            const text = String(lbl ?? '');
+            const isDriver = /^(t|ph|pz|sl|h|sq)\s*\d*/i.test(text.trim());
+            return {
+              kind: isDriver ? 'driver' : 'drill',
+              label: text,
+              clearanceMm: 0.35,
+              customDiameterMm: null,
+            };
+          });
+        } else {
+          pockets = DEFAULT_BIT_POCKETS.map((p) => ({ ...p, customDiameterMm: null }));
+        }
+
+        const pocketDepthMm =
+          config && Number.isFinite(Number(config.pocketDepthMm))
+            ? Math.max(6, Math.min(25, Number(config.pocketDepthMm)))
+            : 12;
+
+        return { pockets, pocketDepthMm };
+      }
+
+      function computeBitRackGeometry(widthMm, config) {
+        const { pockets, pocketDepthMm } = normalizeBitRackConfig(config);
+        const count = pockets.length;
+        const rows = count > 7 ? 2 : 1;
+        const backCount = rows === 2 ? Math.ceil(count / 2) : count;
+        const frontCount = rows === 2 ? count - backCount : 0;
+        const maxCols = Math.max(1, backCount, frontCount);
+        const depthFromBoardMm = rows === 2 ? 37.4 : 23.0;
+        const padX = 12;
+        const usableW = Math.max(24, widthMm - padX * 2);
+        const step = usableW / maxCols;
+
+        const placed = pockets.map((p, idx) => {
+          const row = rows === 2 && idx >= backCount ? 1 : 0;
+          const col = row === 0 ? idx : idx - backCount;
+          const shankDiaMm = parsePocketDiameterMm(p.label, p.kind, p.customDiameterMm);
+          const clearanceMm = Number.isFinite(Number(p.clearanceMm)) ? Number(p.clearanceMm) : 0.35;
+          const holeDiaMm = Number((shankDiaMm + clearanceMm).toFixed(2));
+          const lxCenter = padX + col * step + step / 2;
+          const zOffsetFromPlate = rows === 1 ? depthFromBoardMm / 2 : row === 0 ? 10.6 : 26.8;
+          return {
+            index: idx,
+            row,
+            col,
+            kind: p.kind,
+            label: p.label,
+            shankDiaMm,
+            clearanceMm,
+            holeDiaMm,
+            lxCenter,
+            zOffsetFromPlate,
+          };
+        });
+
+        return {
+          pockets,
+          pocketDepthMm,
+          rows,
+          backCount,
+          frontCount,
+          maxCols,
+          step,
+          depthFromBoardMm,
+          placed,
+        };
+      }
+
+      const PLIERS_TEMPLATES = {
+        tang: {
+          keepProportions: true,
+          overallLengthMm: 192.7,
+          handleSpreadMm: 69.6,
+          jawToShoulderMm: 82.4,
+          neckWidthMm: 35.4,
+          headWidthMm: 45.7,
+          thicknessMm: 17.1,
+          centerFromBoardMm: 32.0,
+        },
+        spisstang: {
+          keepProportions: true,
+          overallLengthMm: 186.0,
+          handleSpreadMm: 58.0,
+          jawToShoulderMm: 86.0,
+          neckWidthMm: 26.0,
+          headWidthMm: 34.0,
+          thicknessMm: 14.0,
+          centerFromBoardMm: 30.0,
+        },
+        avbiter: {
+          keepProportions: true,
+          overallLengthMm: 164.0,
+          handleSpreadMm: 64.0,
+          jawToShoulderMm: 68.0,
+          neckWidthMm: 32.0,
+          headWidthMm: 42.0,
+          thicknessMm: 16.0,
+          centerFromBoardMm: 31.0,
+        },
+      };
+
+      function isPliersType(type) {
+        return type === 'tang' || type === 'spisstang' || type === 'avbiter';
+      }
+
+      function normalizePliersConfig(type, config) {
+        const tpl = PLIERS_TEMPLATES[type] || PLIERS_TEMPLATES.tang;
+        const cfg = config || {};
+        const num = (v, fb, lo, hi) => {
+          const n = Number(v);
+          return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : fb;
+        };
+        return {
+          keepProportions: cfg.keepProportions !== false,
+          overallLengthMm: num(cfg.overallLengthMm, tpl.overallLengthMm, 90, 340),
+          handleSpreadMm: num(cfg.handleSpreadMm, tpl.handleSpreadMm, 30, 180),
+          jawToShoulderMm: num(cfg.jawToShoulderMm, tpl.jawToShoulderMm, 25, 180),
+          neckWidthMm: num(cfg.neckWidthMm, tpl.neckWidthMm, 10, 90),
+          headWidthMm: num(cfg.headWidthMm, tpl.headWidthMm, 14, 110),
+          thicknessMm: num(cfg.thicknessMm, tpl.thicknessMm, 6, 45),
+          centerFromBoardMm: num(cfg.centerFromBoardMm, tpl.centerFromBoardMm, 18, 75),
+        };
+      }
+
+      function computePliersForkMetrics(type, config) {
+        const p = normalizePliersConfig(type, config);
+        const forkOpeningMm = Number((p.neckWidthMm + 0.7).toFixed(1));
+        const headDiff = Math.max(4, p.headWidthMm - p.neckWidthMm);
+        const armThicknessMm = Number(Math.max(5.5, Math.min(11, headDiff * 0.72)).toFixed(1));
+        const armLenMm = Number(Math.max(24, p.centerFromBoardMm + p.thicknessMm * 0.65 - 4.5).toFixed(1));
+        return {
+          ...p,
+          forkOpeningMm,
+          armThicknessMm,
+          armLenMm,
+        };
+      }
+
+      function applyPliersFieldUpdate(type, config, field, nextVal) {
+        const cur = normalizePliersConfig(type, config);
+        const bounds = {
+          overallLengthMm: [90, 340],
+          handleSpreadMm: [30, 180],
+          jawToShoulderMm: [25, 180],
+          neckWidthMm: [10, 90],
+          headWidthMm: [14, 110],
+          thicknessMm: [6, 45],
+          centerFromBoardMm: [18, 75],
+        };
+        const [lo, hi] = bounds[field] || [5, 400];
+        const clamped = Math.max(lo, Math.min(hi, Number(nextVal) || cur[field]));
+
+        if (cur.keepProportions && (field === 'overallLengthMm' || field === 'handleSpreadMm' || field === 'jawToShoulderMm')) {
+          const base = cur[field] || 1;
+          const ratio = Math.max(0.4, Math.min(2.5, clamped / base));
+          const scale = (k, bLo, bHi) => Number(Math.max(bLo, Math.min(bHi, cur[k] * ratio)).toFixed(2));
+          return {
+            ...(config || {}),
+            keepProportions: true,
+            overallLengthMm: field === 'overallLengthMm' ? Number(clamped.toFixed(2)) : scale('overallLengthMm', 90, 340),
+            handleSpreadMm: field === 'handleSpreadMm' ? Number(clamped.toFixed(2)) : scale('handleSpreadMm', 30, 180),
+            jawToShoulderMm: field === 'jawToShoulderMm' ? Number(clamped.toFixed(2)) : scale('jawToShoulderMm', 25, 180),
+            neckWidthMm: scale('neckWidthMm', 10, 90),
+            headWidthMm: scale('headWidthMm', 14, 110),
+            thicknessMm: scale('thicknessMm', 6, 45),
+            centerFromBoardMm: cur.centerFromBoardMm,
+          };
+        }
+
+        return {
+          ...(config || {}),
+          ...cur,
+          [field]: Number(clamped.toFixed(2)),
+        };
+      }
+
       function computeItemDimensions(type, config) {
+        let widthMm;
+        let heightMm;
         if (type === 'fastnokkelholder') {
           const sizes = (config && config.sizes) || [8, 10, 12, 13, 14, 17, 19];
           const count = Math.max(1, sizes.length);
           const maxSize = Math.max(...sizes.map((s) => Number(s) || 10), 10);
-          const width = Math.max(84, count * 30.5 + 24);
-          const height = Math.min(340, Math.max(150, 130 + maxSize * 7.2));
-          return { widthMm: Number(width.toFixed(2)), heightMm: Number(height.toFixed(2)) };
-        }
-        if (type === 'bitsholder') {
-          const count = (config && config.bits ? config.bits.length : config?.bitCount) || 10;
-          const width = Math.max(76, count * 12.2 + 16);
-          return { widthMm: Number(width.toFixed(2)), heightMm: 44.5 };
-        }
-        if (type === 'skrutrekkerholder') {
+          widthMm = Math.max(84, count * 30.5 + 24);
+          heightMm = Math.min(340, Math.max(150, 130 + maxSize * 7.2));
+        } else if (type === 'bitsholder') {
+          const { pockets } = normalizeBitRackConfig(config);
+          const count = Math.max(1, pockets.length);
+          const rows = count > 7 ? 2 : 1;
+          const cols = rows === 2 ? Math.ceil(count / 2) : count;
+          const maxHole = Math.max(
+            ...pockets.map((p) => parsePocketDiameterMm(p.label, p.kind, p.customDiameterMm) + (p.clearanceMm ?? 0.35)),
+            7.0
+          );
+          const colPitch = Math.max(20.16, maxHole + 8.5);
+          widthMm = Math.max(76.2, cols * colPitch + 24);
+          heightMm = rows === 2 ? 64.0 : 52.0;
+        } else if (isPliersType(type)) {
+          const p = normalizePliersConfig(type, config);
+          widthMm = Math.max(60, Math.max(p.handleSpreadMm + 16, p.headWidthMm + 28));
+          heightMm = Math.max(104, p.overallLengthMm + 14);
+        } else if (type === 'skrutrekkerholder') {
           const slots = (config && config.slots) || 5;
-          return { widthMm: Number((slots * 32 + 18).toFixed(2)), heightMm: 210.0 };
+          widthMm = slots * 32 + 18;
+          heightMm = 210.0;
+        } else {
+          const cat = TOOL_CATALOG.find((t) => t.id === type);
+          widthMm = cat ? cat.defaultWidthMm : 76.2;
+          heightMm = cat ? cat.defaultHeightMm : 120;
         }
-        const cat = TOOL_CATALOG.find((t) => t.id === type);
+
+        if (config && Number.isFinite(Number(config.customWidthMm)) && Number(config.customWidthMm) > 0) {
+          widthMm = Math.max(50, Math.min(500, Number(config.customWidthMm)));
+        }
+        if (config && Number.isFinite(Number(config.customHeightMm)) && Number(config.customHeightMm) > 0) {
+          heightMm = Math.max(40, Math.min(450, Number(config.customHeightMm)));
+        }
+
         return {
-          widthMm: cat ? cat.defaultWidthMm : 80,
-          heightMm: cat ? cat.defaultHeightMm : 120,
+          widthMm: Number(widthMm.toFixed(2)),
+          heightMm: Number(heightMm.toFixed(2)),
+        };
+      }
+
+      // Felles sannhetskilde for bakplate og skruehull i både 2D og 3D slik at hvert
+      // skruehull ligger eksakt på (k + 0.5) * pitch og (m + 0.5) * pitch fra tavlens rutenett.
+      function computeHolderLayout(item, pitch, mount) {
+        const w = item.widthMm;
+        const h = item.heightMm;
+        const p = Math.max(10, Number(pitch) || 25.4);
+        const holeDia = Math.max(3, Number(mount?.holeDiaMm) || 5.2);
+        const holeR = holeDia / 2;
+        const edgeMargin = Math.max(4.8, holeR + 2.2);
+
+        const plateX = item.type === 'klohammer' ? 4 : 1;
+        const plateW = Math.max(24, w - plateX * 2);
+        const plateY = 0;
+
+        const m0 = Math.max(0, Math.ceil((plateY + edgeMargin) / p - 0.5 - 1e-6));
+        const ly0 = Number(((m0 + 0.5) * p).toFixed(4));
+        const ly1 = Number(((m0 + 1.5) * p).toFixed(4));
+        const wantDoubleRow = mount?.styleId === 'screw_double' && item.type !== 'bitsholder';
+
+        let plateH;
+        if (item.type === 'bitsholder') {
+          plateH = h;
+        } else if (item.type === 'maleband') {
+          plateH = Math.min(h - 4, Math.max(64, wantDoubleRow ? ly1 + 12 : 64));
+        } else if (item.type === 'klohammer') {
+          plateH = Math.min(h, Math.max(68, wantDoubleRow ? ly1 + 12 : 68));
+        } else {
+          plateH = Math.min(h, Math.max(50, (wantDoubleRow ? ly1 + 10 : ly0 + 34)));
+        }
+
+        const minX = plateX + edgeMargin;
+        const maxX = plateX + plateW - edgeMargin;
+        const kStart = Math.max(0, Math.ceil(minX / p - 0.5 - 1e-6));
+        const kEnd = Math.floor(maxX / p - 0.5 + 1e-6);
+        const validKs = [];
+        for (let k = kStart; k <= kEnd; k++) {
+          validKs.push(k);
+        }
+        if (validKs.length === 0) {
+          validKs.push(Math.max(0, Math.round((plateX + plateW / 2) / p - 0.5)));
+        }
+
+        const kMin = validKs[0];
+        const kMax = validKs[validKs.length - 1];
+        const topKs = [kMin];
+        if (validKs.length >= 5) {
+          topKs.push(validKs[Math.floor((validKs.length - 1) / 2)]);
+        }
+        if (kMax !== kMin) {
+          topKs.push(kMax);
+        }
+
+        const holes = topKs.map((k) => ({
+          k,
+          m: m0,
+          lx: Number(((k + 0.5) * p).toFixed(4)),
+          ly: ly0,
+        }));
+
+        const hasDoubleRow = wantDoubleRow && ly1 <= plateY + plateH - edgeMargin + 1e-6;
+        if (hasDoubleRow) {
+          const botKs = kMax !== kMin ? [kMin, kMax] : [kMin];
+          botKs.forEach((k) => {
+            holes.push({
+              k,
+              m: m0 + 1,
+              lx: Number(((k + 0.5) * p).toFixed(4)),
+              ly: ly1,
+            });
+          });
+        }
+
+        return {
+          plateX,
+          plateY,
+          plateW,
+          plateH,
+          ly0,
+          ly1,
+          hasDoubleRow,
+          holes,
+        };
+      }
+
+      function getRotatedLocalPoint(lx, ly, w, h, rotation) {
+        const rot = ((rotation % 360) + 360) % 360;
+        const dx = lx - w / 2;
+        const dy = ly - h / 2;
+        if (rot === 90) return { rx: w / 2 - dy, ry: h / 2 + dx };
+        if (rot === 180) return { rx: w / 2 - dx, ry: h / 2 - dy };
+        if (rot === 270) return { rx: w / 2 + dy, ry: h / 2 - dx };
+        return { rx: lx, ry: ly };
+      }
+
+      function snapItemPosition(valX, valY, item, board, mount, snapToGrid) {
+        const w = item.widthMm;
+        const h = item.heightMm;
+        const rot = ((item.rotation % 360) + 360) % 360;
+        const swapped = rot === 90 || rot === 270;
+        const boardW = board.cols * board.pitch;
+        const boardH = board.rows * board.pitch;
+        const minX = swapped ? (h - w) / 2 : 0;
+        const maxX = boardW - (swapped ? (w + h) / 2 : w);
+        const minY = swapped ? (w - h) / 2 : 0;
+        const maxY = boardH - (swapped ? (w + h) / 2 : h);
+
+        const clampAxis = (v, lo, hi) => (hi >= lo ? Math.max(lo, Math.min(hi, v)) : (lo + hi) / 2);
+
+        if (!snapToGrid) {
+          return {
+            xMm: Number(clampAxis(valX, minX, maxX).toFixed(1)),
+            yMm: Number(clampAxis(valY, minY, maxY).toFixed(1)),
+          };
+        }
+
+        const layout = computeHolderLayout(item, board.pitch, mount);
+        const refHole = layout.holes[0];
+        const { rx, ry } = getRotatedLocalPoint(refHole.lx, refHole.ly, w, h, rot);
+        const p = board.pitch;
+
+        const snapAxis = (val, rOffset, lo, hi, count) => {
+          let col = Math.round((val + rOffset) / p - 0.5);
+          col = Math.max(0, Math.min(count - 1, col));
+          let snapped = (col + 0.5) * p - rOffset;
+          if (hi >= lo) {
+            if (snapped < lo - 1e-4) {
+              col = Math.min(count - 1, Math.ceil((lo + rOffset) / p - 0.5 - 1e-6));
+              snapped = (col + 0.5) * p - rOffset;
+            } else if (snapped > hi + 1e-4) {
+              col = Math.max(0, Math.floor((hi + rOffset) / p - 0.5 + 1e-6));
+              snapped = (col + 0.5) * p - rOffset;
+            }
+          }
+          return Number(snapped.toFixed(4));
+        };
+
+        return {
+          xMm: snapAxis(valX, rx, minX, maxX, board.cols),
+          yMm: snapAxis(valY, ry, minY, maxY, board.rows),
         };
       }
 
@@ -240,13 +694,16 @@
         cols: 36,
         rows: 26,
         pitch: 25.4,
-        holeDiameter: 6.0,
+        holeDiameter: 5.0,
         colorId: 'slate',
         thicknessMm: 6.0,
       };
 
       const INITIAL_MOUNT = {
-        styleId: 'standard_peg',
+        styleId: 'screw_std',
+        screwDiaMm: 5.0,
+        screwLenMm: 6.5,
+        holeDiaMm: 5.2,
         clearanceMm: 38,
       };
 
@@ -265,13 +722,16 @@
         {
           id: 'item-bits-1',
           type: 'bitsholder',
-          name: 'Bitsholder',
+          name: 'Bits- og borholder',
           xMm: 25.4 * 14,
-          yMm: 25.4 * 3,
+          yMm: 25.4 * 2,
           rotation: 0,
-          config: { bits: ['T15', 'T20', 'T25', 'PH1', 'PH2', 'PZ2', 'SL5', 'H4', 'H5', 'H6'], bitCount: 10 },
-          ...computeItemDimensions('bitsholder', { bitCount: 10 }),
-          liftOutMm: 32,
+          config: {
+            pocketDepthMm: 12,
+            pockets: DEFAULT_BIT_POCKETS.map((p) => ({ ...p })),
+          },
+          ...computeItemDimensions('bitsholder', { pockets: DEFAULT_BIT_POCKETS }),
+          liftOutMm: 36,
         },
       ];
 
@@ -390,89 +850,128 @@
       // 3. DETALJERT SVG-TEGNING AV VERKTØY OG HOLDERE
       // ============================================================================
 
-      function ToolIllustrationSVG({ item, showTool = true, isPreview = false }) {
+      function ScrewHole2D({ cx, cy, holeDia = 5.2 }) {
+        const r = Math.max(1.5, holeDia / 2);
+        return (
+          <g>
+            <circle cx={cx} cy={cy} r={r + 1.5} fill="rgba(15, 28, 46, 0.78)" stroke="#60a5fa" strokeWidth={0.7} />
+            <circle cx={cx} cy={cy} r={r} fill="#08101b" stroke="#93c5fd" strokeWidth={0.8} />
+          </g>
+        );
+      }
+
+      function ToolIllustrationSVG({ item, pitch = 25.4, mount = INITIAL_MOUNT, showTool = true, isPreview = false }) {
         const w = item.widthMm;
         const h = item.heightMm;
         const holderFill = '#2a415b';
         const holderStroke = '#7ba7d7';
         const metalFill = '#cbd5e1';
+        const layout = computeHolderLayout(item, pitch, mount);
+        const holeDia = mount?.holeDiaMm || 5.2;
+
+        const renderScrewHoles = () =>
+          layout.holes.map((hole, idx) => (
+            <ScrewHole2D key={`sh-${idx}`} cx={hole.lx} cy={hole.ly} holeDia={holeDia} />
+          ));
 
         if (item.type === 'fastnokkelholder') {
           const sizes = (item.config && item.config.sizes) || [8, 10, 12, 13, 14, 17, 19];
           const unit = (item.config && item.config.unit) || 'mm';
-          const padX = 14;
-          const usableW = Math.max(40, w - padX * 2);
+          const padX = 24;
+          const usableW = Math.max(36, w - padX * 2);
           const step = sizes.length > 1 ? usableW / (sizes.length - 1) : 0;
           const maxSize = Math.max(...sizes.map((s) => Number(s) || 10), 14);
+          const railTop = Math.max(20, layout.ly0 + 7);
 
           return (
             <g>
               <rect x={0} y={0} width={w} height={h} rx={4} fill="rgba(26, 44, 66, 0.45)" stroke={holderStroke} strokeWidth={1.1} />
-              <rect x={4} y={6} width={w - 8} height={36} rx={3} fill={holderFill} stroke="#60a5fa" strokeWidth={1.1} />
-              <circle cx={14} cy={14} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
-              <circle cx={w - 14} cy={14} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
+              <rect x={layout.plateX} y={layout.plateY} width={layout.plateW} height={layout.plateH} rx={3} fill={holderFill} stroke="#60a5fa" strokeWidth={1.1} />
 
               {sizes.map((sz, idx) => {
                 const cx = sizes.length === 1 ? w / 2 : padX + idx * step;
                 const num = Number(sz) || 10;
                 const ratio = Math.min(1, Math.max(0.38, num / maxSize));
-                const wrenchLen = 95 + ratio * (h - 115);
+                const wrenchLen = Math.max(28, Math.min(h - railTop - 22, 95 + ratio * (h - 122)));
                 const headR = 5.5 + ratio * 6.5;
                 const shaftW = 4.2 + ratio * 4.6;
+                const headCy = railTop + 10;
 
                 return (
                   <g key={idx}>
-                    <rect x={cx - shaftW * 0.85} y={18} width={shaftW * 1.7} height={22} rx={2} fill="#1b2d42" stroke="#93c5fd" strokeWidth={0.8} />
+                    <rect x={cx - shaftW * 0.85} y={railTop} width={shaftW * 1.7} height={20} rx={2} fill="#1b2d42" stroke="#93c5fd" strokeWidth={0.8} />
                     {!isPreview && (
-                      <text x={cx} y={13.5} textAnchor="middle" fill="#cbd5e1" fontSize="6.5" fontFamily="JetBrains Mono, monospace">
+                      <text x={cx} y={railTop + 28} textAnchor="middle" fill="#cbd5e1" fontSize="6.5" fontFamily="JetBrains Mono, monospace">
                         {sz}{unit === 'mm' ? '' : '"'}
                       </text>
                     )}
                     {showTool && (
                       <g>
-                        <circle cx={cx} cy={28} r={headR} fill={metalFill} stroke="#475569" strokeWidth={0.9} />
-                        <rect x={cx - headR * 0.42} y={28 - headR - 1} width={headR * 0.84} height={headR * 1.1} fill="#1c2a3a" />
-                        <rect x={cx - shaftW / 2} y={28 + headR * 0.55} width={shaftW} height={wrenchLen - headR * 1.3} rx={1.5} fill="url(#chromeGrad)" stroke="#64748b" strokeWidth={0.7} />
-                        <circle cx={cx} cy={28 + wrenchLen - headR * 0.5} r={headR * 0.82} fill={metalFill} stroke="#475569" strokeWidth={0.9} />
-                        <circle cx={cx} cy={28 + wrenchLen - headR * 0.5} r={headR * 0.42} fill="#1f3145" />
+                        <circle cx={cx} cy={headCy} r={headR} fill={metalFill} stroke="#475569" strokeWidth={0.9} />
+                        <rect x={cx - headR * 0.42} y={headCy - headR - 1} width={headR * 0.84} height={headR * 1.1} fill="#1c2a3a" />
+                        <rect x={cx - shaftW / 2} y={headCy + headR * 0.55} width={shaftW} height={Math.max(10, wrenchLen - headR * 1.3)} rx={1.5} fill="url(#chromeGrad)" stroke="#64748b" strokeWidth={0.7} />
+                        <circle cx={cx} cy={headCy + wrenchLen - headR * 0.5} r={headR * 0.82} fill={metalFill} stroke="#475569" strokeWidth={0.9} />
+                        <circle cx={cx} cy={headCy + wrenchLen - headR * 0.5} r={headR * 0.42} fill="#1f3145" />
                       </g>
                     )}
                   </g>
                 );
               })}
+
+              {renderScrewHoles()}
             </g>
           );
         }
 
         if (item.type === 'bitsholder') {
-          const bits = (item.config && item.config.bits) || ['T15', 'T20', 'T25', 'PH1', 'PH2', 'PZ2', 'SL5', 'H4'];
-          const pad = 10;
-          const step = bits.length > 0 ? (w - pad * 2) / bits.length : 12;
+          const rack = computeBitRackGeometry(w, item.config);
+          const blockTop = Math.max(22, layout.ly0 + 9);
+          const blockH = Math.max(16, h - blockTop - 3);
+          const row0Y = rack.rows === 2 ? blockTop + blockH * 0.28 : blockTop + blockH * 0.45;
+          const row1Y = blockTop + blockH * 0.72;
+          const hexPoints = (cx, cy, r) => {
+            const pts = [];
+            for (let k = 0; k < 6; k++) {
+              const a = (k * Math.PI) / 3 - Math.PI / 6;
+              pts.push(`${(cx + Math.cos(a) * r).toFixed(2)},${(cy + Math.sin(a) * r).toFixed(2)}`);
+            }
+            return pts.join(' ');
+          };
           return (
             <g>
-              <rect x={0} y={0} width={w} height={h} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.2} />
-              <rect x={4} y={4} width={w - 8} height={11} rx={2} fill="#1d3046" />
-              <circle cx={10} cy={9.5} r={2} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
-              <circle cx={w - 10} cy={9.5} r={2} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
-              {bits.map((label, i) => {
-                const bx = pad + i * step + step / 2;
+              <rect x={layout.plateX} y={layout.plateY} width={layout.plateW} height={layout.plateH} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.2} />
+              <rect x={layout.plateX + 2} y={layout.plateY + 2} width={layout.plateW - 4} height={blockTop - 4} rx={2} fill="#1d3046" />
+              <rect x={layout.plateX + 3} y={blockTop} width={layout.plateW - 6} height={blockH} rx={2.5} fill="#233b56" stroke="#4f82bd" strokeWidth={0.7} />
+              {rack.placed.map((p) => {
+                const bx = p.lxCenter;
+                const by = p.row === 0 ? row0Y : row1Y;
+                const rPocket = Math.max(2.3, Math.min(rack.step * 0.34, p.holeDiaMm * 0.45));
                 return (
-                  <g key={i}>
-                    <rect x={bx - 4.5} y={19} width={9} height={10} rx={1.5} fill="#122133" stroke="#60a5fa" strokeWidth={0.7} />
+                  <g key={p.index}>
+                    {p.kind === 'drill' ? (
+                      <circle cx={bx} cy={by} r={rPocket} fill="#0e1a29" stroke="#60a5fa" strokeWidth={0.75} />
+                    ) : (
+                      <polygon points={hexPoints(bx, by, Math.max(3.1, rPocket))} fill="#0e1a29" stroke="#60a5fa" strokeWidth={0.75} />
+                    )}
                     {showTool && (
-                      <g>
-                        <rect x={bx - 3.2} y={13} width={6.4} height={13} rx={1} fill={metalFill} stroke="#475569" strokeWidth={0.6} />
-                        <polygon points={`${bx - 2.2},13 ${bx + 2.2},13 ${bx + 1.4},9.5 ${bx - 1.4},9.5`} fill="#94a3b8" />
-                      </g>
+                      p.kind === 'drill' ? (
+                        <g>
+                          <circle cx={bx} cy={by} r={Math.max(1.5, rPocket * 0.72)} fill={metalFill} stroke="#475569" strokeWidth={0.55} />
+                          <circle cx={bx} cy={by} r={Math.max(0.7, rPocket * 0.28)} fill="#64748b" />
+                        </g>
+                      ) : (
+                        <polygon points={hexPoints(bx, by, Math.max(2.2, rPocket * 0.72))} fill={metalFill} stroke="#475569" strokeWidth={0.55} />
+                      )
                     )}
                     {!isPreview && (
-                      <text x={bx} y={38.5} textAnchor="middle" fill="#93c5fd" fontSize="4.6" fontFamily="JetBrains Mono, monospace">
-                        {label}
+                      <text x={bx} y={by + rPocket + 5.2} textAnchor="middle" fill="#bae6fd" fontSize="4.1" fontFamily="JetBrains Mono, monospace">
+                        {p.label}
                       </text>
                     )}
                   </g>
                 );
               })}
+              {renderScrewHoles()}
             </g>
           );
         }
@@ -481,37 +980,47 @@
           const cx = w / 2;
           const isNeedle = item.type === 'spisstang';
           const isCutter = item.type === 'avbiter';
+          const pf = computePliersForkMetrics(item.type, item.config);
+          const topY = 7;
+          const botY = Math.min(h - 7, topY + pf.overallLengthMm);
+          const shoulderY = Math.max(layout.ly0 + 16, Math.min(botY - 30, topY + pf.jawToShoulderMm));
+          const pinTop = Math.max(layout.ly0 + 13, shoulderY - 6);
+          const halfGap = pf.forkOpeningMm / 2;
+          const armW = Math.max(5, Math.min(9.5, pf.armThicknessMm));
+          const headHalf = Math.max(halfGap + 3, Math.min(w / 2 - 4, pf.headWidthMm / 2));
+          const spreadHalf = Math.max(12, Math.min(w / 2 - 4, pf.handleSpreadMm / 2));
+          const jawHalf = isNeedle ? 2.0 : isCutter ? Math.min(headHalf * 0.72, 10) : Math.min(headHalf * 0.52, 8);
           const jawPath = isNeedle
-            ? `M ${cx - 1.5} 6 L ${cx - 7} 48 L ${cx} 54 L ${cx + 7} 48 L ${cx + 1.5} 6 Z`
+            ? `M ${cx - jawHalf} ${topY} L ${cx - headHalf * 0.85} ${shoulderY - 6} L ${cx} ${shoulderY + 2} L ${cx + headHalf * 0.85} ${shoulderY - 6} L ${cx + jawHalf} ${topY} Z`
             : isCutter
-            ? `M ${cx - 8} 20 Q ${cx} 12 ${cx + 8} 20 L ${cx + 9} 44 L ${cx} 50 L ${cx - 9} 44 Z`
-            : `M ${cx - 5} 12 L ${cx - 9} 44 L ${cx} 50 L ${cx + 9} 44 L ${cx + 5} 12 Z`;
+            ? `M ${cx - jawHalf} ${topY + 6} Q ${cx} ${topY} ${cx + jawHalf} ${topY + 6} L ${cx + headHalf} ${shoulderY - 7} L ${cx} ${shoulderY + 2} L ${cx - headHalf} ${shoulderY - 7} Z`
+            : `M ${cx - jawHalf} ${topY + 2} L ${cx - headHalf} ${shoulderY - 8} L ${cx} ${shoulderY + 2} L ${cx + headHalf} ${shoulderY - 8} L ${cx + jawHalf} ${topY + 2} Z`;
 
-          const gripColor = isCutter ? '#0284c7' : isNeedle ? '#2563eb' : '#1d4ed8';
+          const gripColor = isCutter ? '#0284c7' : isNeedle ? '#2563eb' : '#ea580c';
+          const midHandleY = shoulderY + (botY - shoulderY) * 0.48;
 
           return (
             <g>
-              <rect x={6} y={4} width={w - 12} height={46} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
-              <rect x={cx - 15} y={32} width={8} height={16} rx={3} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
-              <rect x={cx + 7} y={32} width={8} height={16} rx={3} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
-              <circle cx={16} cy={14} r={2.4} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
-              <circle cx={w - 16} cy={14} r={2.4} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.7} />
+              <rect x={layout.plateX} y={layout.plateY} width={layout.plateW} height={layout.plateH} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
+              <rect x={cx - halfGap - armW} y={pinTop} width={armW} height={16} rx={2.5} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              <rect x={cx + halfGap} y={pinTop} width={armW} height={16} rx={2.5} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              {renderScrewHoles()}
               {showTool && (
                 <g>
                   <path d={jawPath} fill={metalFill} stroke="#475569" strokeWidth={0.9} />
-                  <circle cx={cx} cy={46} r={5.5} fill="#94a3b8" stroke="#334155" strokeWidth={0.9} />
-                  <circle cx={cx} cy={46} r={2} fill="#475569" />
+                  <circle cx={cx} cy={shoulderY - 5} r={Math.max(4.5, headHalf * 0.34)} fill="#94a3b8" stroke="#334155" strokeWidth={0.9} />
+                  <circle cx={cx} cy={shoulderY - 5} r={2.2} fill="#475569" />
                   <path
-                    d={`M ${cx - 5} 51 Q ${cx - 21} 96 ${cx - 17} ${h - 10} Q ${cx - 13} ${h - 4} ${cx - 8} ${h - 10} Q ${cx - 10} 92 ${cx - 2} 54 Z`}
+                    d={`M ${cx - halfGap * 0.38} ${shoulderY} Q ${cx - spreadHalf * 1.05} ${midHandleY} ${cx - spreadHalf * 0.72} ${botY} Q ${cx - spreadHalf * 0.5} ${botY + 5} ${cx - spreadHalf * 0.36} ${botY} Q ${cx - spreadHalf * 0.56} ${midHandleY} ${cx - 2.5} ${shoulderY + 4} Z`}
                     fill={gripColor}
-                    stroke="#60a5fa"
-                    strokeWidth={0.9}
+                    stroke="#fdba74"
+                    strokeWidth={0.75}
                   />
                   <path
-                    d={`M ${cx + 5} 51 Q ${cx + 21} 96 ${cx + 17} ${h - 10} Q ${cx + 13} ${h - 4} ${cx + 8} ${h - 10} Q ${cx + 10} 92 ${cx + 2} 54 Z`}
+                    d={`M ${cx + halfGap * 0.38} ${shoulderY} Q ${cx + spreadHalf * 1.05} ${midHandleY} ${cx + spreadHalf * 0.72} ${botY} Q ${cx + spreadHalf * 0.5} ${botY + 5} ${cx + spreadHalf * 0.36} ${botY} Q ${cx + spreadHalf * 0.56} ${midHandleY} ${cx + 2.5} ${shoulderY + 4} Z`}
                     fill={gripColor}
-                    stroke="#60a5fa"
-                    strokeWidth={0.9}
+                    stroke="#fdba74"
+                    strokeWidth={0.75}
                   />
                 </g>
               )}
@@ -521,17 +1030,20 @@
 
         if (item.type === 'klohammer') {
           const cx = w / 2;
+          const forkTop = Math.max(36, layout.ly0 + 22);
+          const shaftH = Math.max(28, h - 48);
+          const gripH = Math.min(102, Math.max(20, shaftH * 0.4));
+          const gripY = 36 + shaftH - gripH;
           return (
             <g>
-              <rect x={14} y={8} width={w - 28} height={66} rx={5} fill={holderFill} stroke={holderStroke} strokeWidth={1.2} />
-              <rect x={cx - 26} y={40} width={12} height={32} rx={4} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
-              <rect x={cx + 14} y={40} width={12} height={32} rx={4} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
-              <circle cx={26} cy={18} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
-              <circle cx={w - 26} cy={18} r={2.6} fill="#0c1522" stroke="#60a5fa" strokeWidth={0.8} />
+              <rect x={layout.plateX} y={layout.plateY} width={layout.plateW} height={layout.plateH} rx={5} fill={holderFill} stroke={holderStroke} strokeWidth={1.2} />
+              <rect x={cx - 26} y={forkTop} width={12} height={30} rx={4} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              <rect x={cx + 14} y={forkTop} width={12} height={30} rx={4} fill="#365475" stroke="#93c5fd" strokeWidth={0.9} />
+              {renderScrewHoles()}
               {showTool && (
                 <g>
-                  <rect x={cx - 9} y={36} width={18} height={h - 48} rx={7} fill="#d9a066" stroke="#854d0e" strokeWidth={1} />
-                  <rect x={cx - 10.5} y={h - 115} width={21} height={102} rx={7} fill="#1e293b" stroke="#475569" strokeWidth={1} />
+                  <rect x={cx - 9} y={36} width={18} height={shaftH} rx={7} fill="#d9a066" stroke="#854d0e" strokeWidth={1} />
+                  <rect x={cx - 10.5} y={gripY} width={21} height={gripH} rx={7} fill="#1e293b" stroke="#475569" strokeWidth={1} />
                   <path
                     d={`M ${cx - 50} 26 L ${cx + 14} 24 Q ${cx + 42} 25 ${cx + 54} 42 Q ${cx + 38} 38 ${cx + 18} 44 L ${cx - 32} 44 L ${cx - 36} 48 L ${cx - 50} 48 Z`}
                     fill={metalFill}
@@ -547,20 +1059,24 @@
 
         if (item.type === 'skrutrekkerholder') {
           const slots = (item.config && item.config.slots) || 5;
-          const step = (w - 24) / slots;
+          const padX = 24;
+          const step = (w - padX * 2) / slots;
+          const barTop = Math.max(24, layout.ly0 + 10);
           return (
             <g>
-              <rect x={2} y={4} width={w - 4} height={34} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
+              <rect x={layout.plateX} y={layout.plateY} width={layout.plateW} height={layout.plateH} rx={4} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
+              <rect x={layout.plateX + 2} y={barTop} width={layout.plateW - 4} height={14} rx={3} fill="#1f354d" stroke="#60a5fa" strokeWidth={0.8} />
+              {renderScrewHoles()}
               {Array.from({ length: slots }).map((_, i) => {
-                const sx = 12 + i * step + step / 2;
-                const bladeLen = 95 + (i % 3) * 28;
+                const sx = padX + i * step + step / 2;
+                const bladeLen = Math.max(20, Math.min(h - barTop - 32, 95 + (i % 3) * 28));
                 return (
                   <g key={i}>
-                    <circle cx={sx} cy={22} r={7} fill="#16273c" stroke="#93c5fd" strokeWidth={0.9} />
+                    <circle cx={sx} cy={barTop + 7} r={6.5} fill="#16273c" stroke="#93c5fd" strokeWidth={0.9} />
                     {showTool && (
                       <g>
-                        <rect x={sx - 7.5} y={6} width={15} height={46} rx={5} fill="#2563eb" stroke="#60a5fa" strokeWidth={0.8} />
-                        <rect x={sx - 2.2} y={52} width={4.4} height={bladeLen} rx={1} fill={metalFill} stroke="#475569" strokeWidth={0.7} />
+                        <rect x={sx - 7.5} y={barTop - 16} width={15} height={44} rx={5} fill="#2563eb" stroke="#60a5fa" strokeWidth={0.8} />
+                        <rect x={sx - 2.2} y={barTop + 28} width={4.4} height={bladeLen} rx={1} fill={metalFill} stroke="#475569" strokeWidth={0.7} />
                       </g>
                     )}
                   </g>
@@ -571,15 +1087,18 @@
         }
 
         // Målebånd
+        const clipY = Math.max(24, layout.ly0 + 11);
+        const tapeH = Math.max(20, h - clipY - 12);
         return (
           <g>
-            <rect x={6} y={6} width={w - 12} height={h - 12} rx={6} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
-            <rect x={w / 2 - 14} y={24} width={28} height={10} rx={2} fill="#152436" stroke="#93c5fd" strokeWidth={0.9} />
+            <rect x={layout.plateX} y={layout.plateY} width={layout.plateW} height={layout.plateH} rx={6} fill={holderFill} stroke={holderStroke} strokeWidth={1.1} />
+            <rect x={w / 2 - 14} y={clipY} width={28} height={10} rx={2} fill="#152436" stroke="#93c5fd" strokeWidth={0.9} />
+            {renderScrewHoles()}
             {showTool && (
               <g>
-                <rect x={14} y={18} width={w - 28} height={h - 32} rx={14} fill="#eab308" stroke="#a16207" strokeWidth={1.2} />
-                <rect x={22} y={28} width={w - 44} height={h - 52} rx={8} fill="#1e293b" />
-                <circle cx={w / 2} cy={h / 2 + 2} r={11} fill="#334155" stroke="#64748b" strokeWidth={1} />
+                <rect x={10} y={clipY - 4} width={w - 20} height={tapeH} rx={14} fill="#eab308" stroke="#a16207" strokeWidth={1.2} />
+                <rect x={18} y={clipY + 6} width={w - 36} height={Math.max(10, tapeH - 20)} rx={8} fill="#1e293b" />
+                <circle cx={w / 2} cy={clipY + tapeH / 2 - 2} r={Math.min(10, tapeH * 0.25)} fill="#334155" stroke="#64748b" strokeWidth={1} />
               </g>
             )}
           </g>
@@ -590,13 +1109,541 @@
       // 4. 3D-VISNING (Three.js + OrbitControls + STLExporter)
       // ============================================================================
 
-      function ThreeDInspectionView({ board, items, selectedId }) {
+      // Felles 3D-bygger for alle parametriske holdere (uten tavle-bakplaten)
+      // Brukes både av ThreeDInspectionView og binær STL-eksport (verktoyholdere.stl).
+      function buildHolders3D(THREE, items, board, mount, options = {}) {
+        const {
+          selectedId = null,
+          isolateSelected = false,
+          showTools = false,
+          targetPrintableGroup = null,
+          targetToolsGroup = null,
+        } = options;
+
+        const boardW = board.cols * board.pitch;
+        const boardH = board.rows * board.pitch;
+        const printableRoot = targetPrintableGroup || new THREE.Group();
+        const toolsRoot = targetToolsGroup || new THREE.Group();
+
+        const holderMat = new THREE.MeshStandardMaterial({ color: '#3b82f6', roughness: 0.36, metalness: 0.14 });
+        const holderSelectedMat = new THREE.MeshStandardMaterial({ color: '#93c5fd', roughness: 0.3, metalness: 0.2 });
+        const steelMat = new THREE.MeshStandardMaterial({ color: '#d1dae6', roughness: 0.24, metalness: 0.88 });
+        const gripMat = new THREE.MeshStandardMaterial({ color: '#1d4ed8', roughness: 0.68, metalness: 0.06 });
+        const darkRubberMat = new THREE.MeshStandardMaterial({ color: '#1e293b', roughness: 0.78, metalness: 0.08 });
+        const woodMat = new THREE.MeshStandardMaterial({ color: '#c88c52', roughness: 0.64, metalness: 0.04 });
+
+        const createBackplateWithScrewHoles = (plateW, plateH, plateThick, screwPositions, holeDia) => {
+          const hw = plateW / 2;
+          const hh = plateH / 2;
+          const r = Math.min(3.5, hw * 0.2, hh * 0.2);
+
+          const shape = new THREE.Shape();
+          shape.moveTo(-hw + r, -hh);
+          shape.lineTo(hw - r, -hh);
+          shape.quadraticCurveTo(hw, -hh, hw, -hh + r);
+          shape.lineTo(hw, hh - r);
+          shape.quadraticCurveTo(hw, hh, hw - r, hh);
+          shape.lineTo(-hw + r, hh);
+          shape.quadraticCurveTo(-hw, hh, -hw, hh - r);
+          shape.lineTo(-hw, -hh + r);
+          shape.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+
+          const holeR = Math.max(1.5, holeDia / 2);
+          screwPositions.forEach(([sx, sy]) => {
+            const holePath = new THREE.Path();
+            holePath.absarc(sx, sy, holeR, 0, Math.PI * 2, true);
+            shape.holes.push(holePath);
+          });
+
+          return new THREE.ExtrudeGeometry(shape, {
+            depth: plateThick,
+            bevelEnabled: false,
+            curveSegments: 18,
+          });
+        };
+
+        const visibleItems = isolateSelected && selectedId ? items.filter((it) => it.id === selectedId) : items;
+        const screwHoleDia = mount?.holeDiaMm || 5.2;
+        const screwDia = mount?.screwDiaMm || 5.0;
+        const screwLen = mount?.screwLenMm || 6.5;
+
+        visibleItems.forEach((item) => {
+          const itemGroup = new THREE.Group();
+          const holderMeshGroup = new THREE.Group();
+          const toolMeshGroup = new THREE.Group();
+          const mat = item.id === selectedId ? holderSelectedMat : holderMat;
+
+          const w = item.widthMm;
+          const h = item.heightMm;
+          const cx = isolateSelected ? 0 : -boardW / 2 + item.xMm + w / 2;
+          const cy = isolateSelected ? 0 : boardH / 2 - item.yMm - h / 2;
+          itemGroup.position.set(cx, cy, 0);
+          itemGroup.rotation.z = -(item.rotation * Math.PI) / 180;
+
+          const layout = computeHolderLayout(item, board.pitch, mount);
+          const plateW = layout.plateW;
+          const plateH = layout.plateH;
+          const plateThick = 4.5;
+          const plateCenterX = layout.plateX + plateW / 2 - w / 2;
+          const plateCenterY = h / 2 - (layout.plateY + plateH / 2);
+
+          const screwPositions = layout.holes.map((hole) => [
+            (hole.lx - w / 2) - plateCenterX,
+            (h / 2 - hole.ly) - plateCenterY,
+          ]);
+
+          const backplateGeo = createBackplateWithScrewHoles(plateW, plateH, plateThick, screwPositions, screwHoleDia);
+          const backplate = new THREE.Mesh(backplateGeo, mat);
+          backplate.position.set(plateCenterX, plateCenterY, 0);
+          backplate.castShadow = true;
+          holderMeshGroup.add(backplate);
+
+          screwPositions.forEach(([sx, sy]) => {
+            const hx = plateCenterX + sx;
+            const hy = plateCenterY + sy;
+            if (mount?.styleId === 'screw_csk') {
+              const cskRing = new THREE.Mesh(
+                new THREE.RingGeometry(screwHoleDia / 2, screwHoleDia / 2 + 1.8, 18),
+                mat
+              );
+              cskRing.position.set(hx, hy, plateThick + 0.05);
+              holderMeshGroup.add(cskRing);
+            }
+            if (showTools) {
+              const screwHead = new THREE.Mesh(
+                new THREE.CylinderGeometry(screwDia / 2 + 1.4, screwDia / 2 + 1.4, 1.8, 16),
+                steelMat
+              );
+              screwHead.rotation.x = Math.PI / 2;
+              screwHead.position.set(hx, hy, plateThick + 0.9);
+              toolMeshGroup.add(screwHead);
+
+              const screwShaft = new THREE.Mesh(
+                new THREE.CylinderGeometry(screwDia / 2, screwDia / 2 - 0.5, screwLen, 14),
+                steelMat
+              );
+              screwShaft.rotation.x = Math.PI / 2;
+              screwShaft.position.set(hx, hy, plateThick - screwLen / 2);
+              toolMeshGroup.add(screwShaft);
+            }
+          });
+
+          if (item.type === 'fastnokkelholder') {
+            const sizes = (item.config && item.config.sizes) || [8, 10, 12, 13, 14, 17, 19];
+            const count = sizes.length;
+            const padX = 24;
+            const usableW = Math.max(36, w - padX * 2);
+            const step = count > 1 ? usableW / (count - 1) : 0;
+            const railTopLy = Math.max(20, layout.ly0 + 7);
+            const combBottomY = h / 2 - (railTopLy + 22);
+
+            const combProfile = new THREE.Shape();
+            combProfile.moveTo(0, 0);
+            combProfile.lineTo(42, 12);
+            combProfile.lineTo(42, 20);
+            combProfile.lineTo(0, 10);
+            combProfile.closePath();
+
+            const combBaseGeo = new THREE.ExtrudeGeometry(combProfile, {
+              depth: plateW,
+              bevelEnabled: true,
+              bevelThickness: 0.8,
+              bevelSize: 0.8,
+              bevelSegments: 2,
+            });
+            combBaseGeo.rotateY(Math.PI / 2);
+            combBaseGeo.translate(plateCenterX - plateW / 2, combBottomY, 4.5);
+            const combBase = new THREE.Mesh(combBaseGeo, mat);
+            combBase.castShadow = true;
+            holderMeshGroup.add(combBase);
+
+            const finProfile = new THREE.Shape();
+            finProfile.moveTo(0, 0);
+            finProfile.lineTo(38, 12);
+            finProfile.lineTo(38, 22);
+            finProfile.lineTo(33, 22);
+            finProfile.lineTo(0, 11);
+            finProfile.closePath();
+
+            const finDepth = 5.5;
+            const finGeo = new THREE.ExtrudeGeometry(finProfile, {
+              depth: finDepth,
+              bevelEnabled: true,
+              bevelThickness: 0.5,
+              bevelSize: 0.5,
+              bevelSegments: 1,
+            });
+            finGeo.rotateY(Math.PI / 2);
+
+            for (let i = 0; i <= count; i++) {
+              const fx =
+                count === 1
+                  ? i === 0
+                    ? -14
+                    : 14
+                  : -usableW / 2 - step * 0.48 + i * step;
+              const fin = new THREE.Mesh(finGeo, mat);
+              fin.position.set(fx - finDepth / 2, combBottomY + 7, 5);
+              fin.castShadow = true;
+              holderMeshGroup.add(fin);
+            }
+
+            if (showTools) {
+              sizes.forEach((sz, i) => {
+                const wx = count === 1 ? 0 : -usableW / 2 + i * step;
+                const num = Number(sz) || 10;
+                const len = Math.max(32, Math.min(h - railTopLy - 24, 95 + num * 6.5));
+                const shaftW = 4.2 + Math.min(5, num * 0.25);
+                const headY = h / 2 - (railTopLy + 10);
+
+                const shaft = new THREE.Mesh(new THREE.BoxGeometry(shaftW, len, 4.2), steelMat);
+                shaft.position.set(wx, headY - len / 2, 26);
+                shaft.castShadow = true;
+                toolMeshGroup.add(shaft);
+
+                const headTop = new THREE.Mesh(new THREE.CylinderGeometry(shaftW * 1.15, shaftW * 1.15, 4.8, 16), steelMat);
+                headTop.rotation.x = Math.PI / 2;
+                headTop.position.set(wx, headY, 26);
+                toolMeshGroup.add(headTop);
+
+                const headBot = new THREE.Mesh(new THREE.TorusGeometry(shaftW * 0.85, 2.0, 10, 18), steelMat);
+                headBot.position.set(wx, headY - len, 26);
+                toolMeshGroup.add(headBot);
+              });
+            }
+          } else if (item.type === 'bitsholder') {
+            // Blokk med 1 eller 2 rader med fysiske borhull (sirkel) og bitshull (sekskant) + bunnplate
+            const rack = computeBitRackGeometry(w, item.config);
+            const blockW = plateW;
+            const blockTopLy = Math.max(22, layout.ly0 + 9);
+            const maxBlockH = Math.max(16, h - blockTopLy - 4);
+            const floorH = 3.5;
+            const pocketDepth = Math.min(maxBlockH + 8, rack.pocketDepthMm || 12);
+            const blockD = rack.depthFromBoardMm;
+            const blockCenterY = h / 2 - (blockTopLy + (floorH + pocketDepth) / 2);
+
+            // Solid bunnplate under hullene slik at bor og bits ikke faller rett gjennom
+            const floorGeo = new THREE.BoxGeometry(blockW, floorH, blockD);
+            const floorMesh = new THREE.Mesh(floorGeo, mat);
+            floorMesh.position.set(plateCenterX, blockCenterY - pocketDepth / 2, 4.5 + blockD / 2);
+            floorMesh.castShadow = true;
+            holderMeshGroup.add(floorMesh);
+
+            // Øvre del av blokken ekstrudert med fysiske sirkel- og sekskanthull
+            const blockShape = new THREE.Shape();
+            blockShape.moveTo(-blockW / 2, 0);
+            blockShape.lineTo(blockW / 2, 0);
+            blockShape.lineTo(blockW / 2, blockD);
+            blockShape.lineTo(-blockW / 2, blockD);
+            blockShape.closePath();
+
+            rack.placed.forEach((p) => {
+              const bx = (-w / 2 + p.lxCenter) - plateCenterX;
+              const cz = p.zOffsetFromPlate;
+              if (Math.abs(bx) < blockW / 2 - 3.5) {
+                if (p.kind === 'drill') {
+                  const rad = Math.max(1.0, Math.min(rack.step * 0.42, p.holeDiaMm / 2));
+                  const circle = new THREE.Path();
+                  circle.absarc(bx, cz, rad, 0, Math.PI * 2, true);
+                  blockShape.holes.push(circle);
+                } else {
+                  const hex = new THREE.Path();
+                  const flatToFlat = p.holeDiaMm;
+                  const hr = Math.max(2.6, flatToFlat / Math.sqrt(3));
+                  for (let k = 0; k < 6; k++) {
+                    const a = (k * Math.PI) / 3;
+                    const px = bx + Math.cos(a) * hr;
+                    const py = cz + Math.sin(a) * hr;
+                    if (k === 0) hex.moveTo(px, py);
+                    else hex.lineTo(px, py);
+                  }
+                  hex.closePath();
+                  blockShape.holes.push(hex);
+                }
+              }
+            });
+
+            const blockGeo = new THREE.ExtrudeGeometry(blockShape, {
+              depth: pocketDepth,
+              bevelEnabled: false,
+              curveSegments: 18,
+            });
+            blockGeo.rotateX(Math.PI / 2);
+            const block = new THREE.Mesh(blockGeo, mat);
+            block.position.set(plateCenterX, blockCenterY + pocketDepth / 2 + floorH / 2, 4.5);
+            block.castShadow = true;
+            holderMeshGroup.add(block);
+
+            [-blockW / 2 + 3, blockW / 2 - 3].forEach((gx) => {
+              const gusset = new THREE.Mesh(new THREE.BoxGeometry(4, Math.min(18, pocketDepth + 4), Math.max(18, blockD - 6)), mat);
+              gusset.position.set(plateCenterX + gx, blockCenterY + pocketDepth / 2 + 3, 4.5 + blockD * 0.42);
+              holderMeshGroup.add(gusset);
+            });
+
+            if (showTools) {
+              const topSurfaceY = blockCenterY + pocketDepth / 2 + floorH / 2;
+              rack.placed.forEach((p) => {
+                const bx = -w / 2 + p.lxCenter;
+                const bz = 4.5 + p.zOffsetFromPlate;
+                if (p.kind === 'drill') {
+                  const r = Math.max(0.9, p.shankDiaMm / 2);
+                  const protrude = Math.min(72, 26 + p.shankDiaMm * 4.2);
+                  const totalLen = pocketDepth + protrude;
+                  const drill = new THREE.Mesh(new THREE.CylinderGeometry(r, r, totalLen, 16), steelMat);
+                  drill.position.set(bx, topSurfaceY - pocketDepth + totalLen / 2, bz);
+                  drill.castShadow = true;
+                  toolMeshGroup.add(drill);
+
+                  const tip = new THREE.Mesh(new THREE.ConeGeometry(r, Math.max(3, r * 1.8), 16), steelMat);
+                  tip.position.set(bx, topSurfaceY + protrude + Math.max(1.5, r * 0.9), bz);
+                  toolMeshGroup.add(tip);
+                } else {
+                  const bitLen = pocketDepth + 16;
+                  const bit = new THREE.Mesh(new THREE.CylinderGeometry(3.15, 3.15, bitLen, 6), steelMat);
+                  bit.position.set(bx, topSurfaceY - pocketDepth + bitLen / 2, bz);
+                  bit.castShadow = true;
+                  toolMeshGroup.add(bit);
+
+                  const tip = new THREE.Mesh(new THREE.ConeGeometry(2.4, 5.5, 6), steelMat);
+                  tip.position.set(bx, topSurfaceY + 18.7, bz);
+                  toolMeshGroup.add(tip);
+                }
+              });
+            }
+          } else if (item.type === 'klohammer') {
+            const forkOffsetX = 20;
+            const forkLen = 48;
+            const forkLy = Math.max(44, layout.ly0 + 28);
+            const forkY = h / 2 - forkLy;
+
+            [-forkOffsetX, forkOffsetX].forEach((fx) => {
+              const pin = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 5.2, forkLen, 14), mat);
+              pin.rotation.x = Math.PI / 2;
+              pin.position.set(fx, forkY, forkLen / 2 + 4);
+              pin.castShadow = true;
+              holderMeshGroup.add(pin);
+
+              const lip = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.5, 11, 12), mat);
+              lip.position.set(fx, forkY + 4.5, forkLen + 2);
+              holderMeshGroup.add(lip);
+
+              const rib = new THREE.Mesh(new THREE.BoxGeometry(6, 16, 18), mat);
+              rib.position.set(fx, forkY - 8, 13);
+              holderMeshGroup.add(rib);
+            });
+
+            if (showTools) {
+              const shaftLen = Math.max(30, h - 72);
+              const head = new THREE.Mesh(new THREE.BoxGeometry(108, 22, 22), steelMat);
+              head.position.set(0, forkY + 14, 28);
+              head.castShadow = true;
+              toolMeshGroup.add(head);
+
+              const face = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 12, 16), steelMat);
+              face.rotation.z = Math.PI / 2;
+              face.position.set(-56, forkY + 14, 28);
+              toolMeshGroup.add(face);
+
+              const shaft = new THREE.Mesh(new THREE.CylinderGeometry(8.5, 10, shaftLen, 14), woodMat);
+              shaft.position.set(0, forkY - shaftLen / 2 + 6, 28);
+              shaft.castShadow = true;
+              toolMeshGroup.add(shaft);
+
+              const gripLen = Math.min(95, Math.max(18, shaftLen * 0.42));
+              const rubberGrip = new THREE.Mesh(new THREE.CylinderGeometry(10.5, 11, gripLen, 14), darkRubberMat);
+              rubberGrip.position.set(0, forkY - shaftLen + gripLen / 2 + 6, 28);
+              toolMeshGroup.add(rubberGrip);
+            }
+          } else if (item.type === 'tang' || item.type === 'spisstang' || item.type === 'avbiter') {
+            const pf = computePliersForkMetrics(item.type, item.config);
+            const armOffsetX = pf.forkOpeningMm / 2 + pf.armThicknessMm / 2;
+            const armLen = pf.armLenMm;
+            const pinLy = Math.max(layout.ly0 + 18, Math.min(h - 32, 7 + pf.jawToShoulderMm));
+            const pinY = h / 2 - pinLy;
+            const armHeight = 8.5;
+
+            [-armOffsetX, armOffsetX].forEach((px) => {
+              const arm = new THREE.Mesh(new THREE.BoxGeometry(pf.armThicknessMm, armHeight, armLen), mat);
+              arm.position.set(px, pinY, 4.5 + armLen / 2);
+              arm.castShadow = true;
+              holderMeshGroup.add(arm);
+
+              const frontLip = new THREE.Mesh(new THREE.CylinderGeometry(pf.armThicknessMm * 0.48, pf.armThicknessMm * 0.48, 5.5, 12), mat);
+              frontLip.position.set(px, pinY + armHeight / 2 + 2.2, 4.5 + armLen - pf.armThicknessMm * 0.48);
+              holderMeshGroup.add(frontLip);
+
+              const gusset = new THREE.Mesh(new THREE.BoxGeometry(pf.armThicknessMm, 14, 12), mat);
+              gusset.position.set(px, pinY - 7, 10);
+              holderMeshGroup.add(gusset);
+            });
+
+            if (showTools) {
+              const toolZ = Math.max(16, pf.centerFromBoardMm);
+              const jawLen = Math.max(22, pf.jawToShoulderMm - 10);
+              const jawW = item.type === 'spisstang' ? Math.min(10, pf.headWidthMm * 0.35) : Math.min(34, pf.headWidthMm * 0.65);
+              const toolThick = Math.max(6, Math.min(26, pf.thicknessMm * 0.65));
+              const jaw = new THREE.Mesh(new THREE.BoxGeometry(jawW, jawLen, toolThick), steelMat);
+              jaw.position.set(0, pinY + jawLen / 2 + 6, toolZ);
+              jaw.castShadow = true;
+              toolMeshGroup.add(jaw);
+
+              const pivotR = Math.max(6, Math.min(18, pf.headWidthMm * 0.32));
+              const pivot = new THREE.Mesh(new THREE.CylinderGeometry(pivotR, pivotR, toolThick + 2, 18), steelMat);
+              pivot.rotation.x = Math.PI / 2;
+              pivot.position.set(0, pinY + 7, toolZ);
+              toolMeshGroup.add(pivot);
+
+              const handleLen = Math.max(36, pf.overallLengthMm - pf.jawToShoulderMm);
+              const handleOffset = Math.max(10, pf.handleSpreadMm * 0.34);
+              const pliersGripMat = item.type === 'tang' ? new THREE.MeshStandardMaterial({ color: '#ea580c', roughness: 0.65, metalness: 0.08 }) : gripMat;
+              [-1, 1].forEach((side) => {
+                const handle = new THREE.Mesh(new THREE.CylinderGeometry(4.4, 5.6, handleLen, 14), pliersGripMat);
+                handle.position.set(side * handleOffset, pinY - handleLen / 2, toolZ);
+                handle.rotation.z = side * Math.atan2(handleOffset * 0.55, handleLen);
+                handle.castShadow = true;
+                toolMeshGroup.add(handle);
+              });
+            }
+          } else if (item.type === 'skrutrekkerholder') {
+            // Skrutrekkerhylle ekstrudert med fysiske gjennomgående hull
+            const slots = (item.config && item.config.slots) || 5;
+            const barD = 34;
+            const barH = 12;
+            const barTopLy = Math.max(24, layout.ly0 + 10);
+            const barY = h / 2 - (barTopLy + barH / 2);
+            const padX = 24;
+            const step = (w - padX * 2) / slots;
+
+            const barShape = new THREE.Shape();
+            barShape.moveTo(-plateW / 2, 0);
+            barShape.lineTo(plateW / 2, 0);
+            barShape.lineTo(plateW / 2, barD);
+            barShape.lineTo(-plateW / 2, barD);
+            barShape.closePath();
+
+            for (let i = 0; i < slots; i++) {
+              const sx = (-w / 2 + padX + i * step + step / 2) - plateCenterX;
+              if (Math.abs(sx) < plateW / 2 - 7) {
+                const holePath = new THREE.Path();
+                holePath.absarc(sx, barD / 2 + 2, 6, 0, Math.PI * 2, true);
+                barShape.holes.push(holePath);
+              }
+            }
+
+            const barGeo = new THREE.ExtrudeGeometry(barShape, {
+              depth: barH,
+              bevelEnabled: false,
+              curveSegments: 16,
+            });
+            barGeo.rotateX(Math.PI / 2);
+            const bar = new THREE.Mesh(barGeo, mat);
+            bar.position.set(plateCenterX, barY + barH / 2, 4.5);
+            bar.castShadow = true;
+            holderMeshGroup.add(bar);
+
+            if (showTools) {
+              for (let i = 0; i < slots; i++) {
+                const sx = -w / 2 + padX + i * step + step / 2;
+                const handle = new THREE.Mesh(new THREE.CylinderGeometry(7.5, 6.5, 48, 12), gripMat);
+                handle.position.set(sx, barY + 28, barD / 2 + 6.5);
+                toolMeshGroup.add(handle);
+
+                const bladeLen = Math.max(20, Math.min(h - barTopLy - 28, 95 + (i % 3) * 24));
+                const blade = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, bladeLen, 10), steelMat);
+                blade.position.set(sx, barY - 4 - bladeLen / 2, barD / 2 + 6.5);
+                toolMeshGroup.add(blade);
+              }
+            }
+          } else {
+            const clipLy = Math.max(26, layout.ly0 + 13);
+            const clipY = h / 2 - clipLy;
+            const shelfY = h / 2 - (layout.plateY + plateH - 7);
+            const shelf = new THREE.Mesh(new THREE.BoxGeometry(Math.max(16, plateW - 8), 10, 32), mat);
+            shelf.position.set(plateCenterX, shelfY, 18);
+            holderMeshGroup.add(shelf);
+            const clipBar = new THREE.Mesh(new THREE.BoxGeometry(Math.min(28, plateW - 4), 12, 6), mat);
+            clipBar.position.set(plateCenterX, clipY, 14);
+            holderMeshGroup.add(clipBar);
+
+            if (showTools) {
+              const tapeMat = new THREE.MeshStandardMaterial({ color: '#eab308', roughness: 0.45, metalness: 0.1 });
+              const body = new THREE.Mesh(new THREE.BoxGeometry(Math.max(16, plateW - 14), Math.max(16, h - clipLy - 14), 26), tapeMat);
+              body.position.set(plateCenterX, (clipY + shelfY) / 2 + 2, 24);
+              toolMeshGroup.add(body);
+            }
+          }
+
+          itemGroup.add(holderMeshGroup);
+          printableRoot.add(itemGroup);
+
+          if (showTools) {
+            toolMeshGroup.position.copy(itemGroup.position);
+            toolMeshGroup.rotation.copy(itemGroup.rotation);
+            toolsRoot.add(toolMeshGroup);
+          }
+        });
+
+        const dispose = () => {
+          [printableRoot, toolsRoot].forEach((grp) => {
+            grp.traverse((obj) => {
+              if (obj.geometry) obj.geometry.dispose();
+              if (obj.material) {
+                if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
+                else obj.material.dispose();
+              }
+            });
+          });
+        };
+
+        return { printableRoot, toolsRoot, dispose };
+      }
+
+      // Eksporterer alle holdere på tavlen (uten selve tavle-bakplaten) til en binær .stl-fil
+      function exportHoldersToBinarySTL(items, board, mount, options = {}) {
+        const { filename = 'verktoyholdere.stl', selectedId = null, isolateSelected = false } = options;
+        if (!window.THREE_KIT) {
+          return { ok: false, message: 'Laster 3D-eksportmotor, prøv igjen om et øyeblikk.' };
+        }
+        if (!items || items.length === 0) {
+          return { ok: false, message: 'Legg til minst én holder på tavlen før du laster ned STL.' };
+        }
+
+        const { THREE, STLExporter } = window.THREE_KIT;
+        const { printableRoot, dispose } = buildHolders3D(THREE, items, board, mount, {
+          selectedId,
+          isolateSelected,
+          showTools: false,
+        });
+
+        printableRoot.updateMatrixWorld(true);
+        const exporter = new STLExporter();
+        const binaryStl = exporter.parse(printableRoot, { binary: true });
+        const blob = new Blob([binaryStl], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        dispose();
+
+        return {
+          ok: true,
+          count: isolateSelected && selectedId ? 1 : items.length,
+          message: 'STL-fil lastet ned!',
+        };
+      }
+
+      function ThreeDInspectionView({ board, mount, items, selectedId, onNotifyStl }) {
         const mountRef = useRef(null);
         const [threeReady, setThreeReady] = useState(Boolean(window.THREE_KIT));
         const [isolateSelected, setIsolateSelected] = useState(false);
         const [showTools3D, setShowTools3D] = useState(true);
         const [exportStatus, setExportStatus] = useState('');
         const sceneGroupRef = useRef(null);
+        const printableGroupRef = useRef(null);
         const cameraRef = useRef(null);
         const controlsRef = useRef(null);
 
@@ -632,7 +1679,7 @@
           const renderer = new THREE.WebGLRenderer({ antialias: !isSoftwareGl, powerPreference: 'high-performance' });
           renderer.outputColorSpace = THREE.SRGBColorSpace;
           renderer.toneMapping = THREE.ACESFilmicToneMapping;
-          renderer.toneMappingExposure = 1.1;
+          renderer.toneMappingExposure = 1.08;
           renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
           renderer.shadowMap.enabled = !isSoftwareGl;
           renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -641,34 +1688,52 @@
 
           const scene = new THREE.Scene();
           scene.background = new THREE.Color('#0f1c2e');
-          scene.fog = new THREE.Fog('#0f1c2e', 1400, 3400);
+          scene.fog = new THREE.Fog('#0f1c2e', 1600, 3800);
 
           const pmrem = new THREE.PMREMGenerator(renderer);
           scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
           pmrem.dispose();
 
           const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 1, 6000);
-          camera.position.set(0, -180, 950);
+          camera.position.set(240, -180, 920);
           cameraRef.current = camera;
 
           const controls = new OrbitControls(camera, renderer.domElement);
           controls.enableDamping = !isSoftwareGl;
           controls.dampingFactor = 0.07;
+          controls.enableRotate = true;
+          controls.enableZoom = true;
+          controls.enablePan = true;
+          controls.minDistance = 80;
+          controls.maxDistance = 2600;
           controlsRef.current = controls;
 
-          scene.add(new THREE.HemisphereLight('#bfd8ff', '#162436', 0.85));
-          const keyLight = new THREE.DirectionalLight('#fff6eb', 1.85);
-          keyLight.position.set(450, 520, 720);
+          // Belysning: AmbientLight + HemisphereLight + DirectionalLight (hovedlys og baklys)
+          const ambientLight = new THREE.AmbientLight('#dbeafe', 0.45);
+          scene.add(ambientLight);
+
+          const hemiLight = new THREE.HemisphereLight('#c7dfff', '#162436', 0.65);
+          scene.add(hemiLight);
+
+          const keyLight = new THREE.DirectionalLight('#fff6eb', 1.75);
+          keyLight.position.set(480, 560, 740);
           keyLight.castShadow = !isSoftwareGl;
+          keyLight.shadow.mapSize.set(1024, 1024);
+          keyLight.shadow.bias = -0.0005;
+          keyLight.shadow.normalBias = 0.02;
           scene.add(keyLight);
 
-          const rimLight = new THREE.DirectionalLight('#60a5fa', 0.9);
-          rimLight.position.set(-500, -250, -400);
+          const rimLight = new THREE.DirectionalLight('#7dd3fc', 0.95);
+          rimLight.position.set(-520, -240, -480);
           scene.add(rimLight);
 
-          const exportRoot = new THREE.Group();
-          scene.add(exportRoot);
-          sceneGroupRef.current = exportRoot;
+          const rootGroup = new THREE.Group();
+          scene.add(rootGroup);
+          sceneGroupRef.current = rootGroup;
+
+          const printableGroup = new THREE.Group();
+          rootGroup.add(printableGroup);
+          printableGroupRef.current = printableGroup;
 
           let frameId = 0;
           let disposed = false;
@@ -709,162 +1774,156 @@
         }, [threeReady]);
 
         useEffect(() => {
-          if (!threeReady || !sceneGroupRef.current) return;
+          if (!threeReady || !sceneGroupRef.current || !printableGroupRef.current) return;
           const { THREE } = window.THREE_KIT;
           const root = sceneGroupRef.current;
+          const printableRoot = printableGroupRef.current;
 
-          while (root.children.length > 0) {
-            const child = root.children[0];
-            root.remove(child);
-            child.traverse?.((obj) => {
-              if (obj.geometry) obj.geometry.dispose();
-              if (obj.material) {
-                if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
-                else obj.material.dispose();
+          const disposeChildren = (grp) => {
+            while (grp.children.length > 0) {
+              const child = grp.children[0];
+              if (child === printableRoot) {
+                grp.remove(child);
+                continue;
               }
-            });
-          }
+              grp.remove(child);
+              child.traverse?.((obj) => {
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material) {
+                  if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
+                  else obj.material.dispose();
+                }
+              });
+            }
+          };
+
+          disposeChildren(printableRoot);
+          disposeChildren(root);
+          root.add(printableRoot);
 
           const boardW = board.cols * board.pitch;
           const boardH = board.rows * board.pitch;
+          const boardThick = board.thicknessMm || 6.0;
           const boardColorObj = BOARD_COLORS.find((c) => c.id === board.colorId) || BOARD_COLORS[0];
 
-          const boardMat = new THREE.MeshStandardMaterial({ color: boardColorObj.fill, roughness: 0.58, metalness: 0.35 });
-          const holderMat = new THREE.MeshStandardMaterial({ color: '#3b82f6', roughness: 0.38, metalness: 0.12 });
-          const holderSelectedMat = new THREE.MeshStandardMaterial({ color: '#93c5fd', roughness: 0.32, metalness: 0.18 });
-          const steelMat = new THREE.MeshStandardMaterial({ color: '#cbd5e1', roughness: 0.25, metalness: 0.88 });
-          const gripMat = new THREE.MeshStandardMaterial({ color: '#1d4ed8', roughness: 0.72, metalness: 0.05 });
+          const boardMat = new THREE.MeshStandardMaterial({ color: boardColorObj.fill, roughness: 0.56, metalness: 0.32 });
+          const rimMat = new THREE.MeshStandardMaterial({ color: boardColorObj.rim, roughness: 0.48, metalness: 0.42 });
+          const holeMat = new THREE.MeshStandardMaterial({ color: boardColorObj.hole, roughness: 0.9, metalness: 0.05 });
 
+          // 1. VERKTØYTAVLE (BAKPLATE) MED RUTENETT AV HULL
           if (!isolateSelected) {
-            const boardMesh = new THREE.Mesh(new THREE.BoxGeometry(boardW, boardH, board.thicknessMm), boardMat);
-            boardMesh.position.set(0, 0, -board.thicknessMm / 2);
-            root.add(boardMesh);
+            const boardGroup = new THREE.Group();
+            const boardMesh = new THREE.Mesh(new THREE.BoxGeometry(boardW, boardH, boardThick), boardMat);
+            boardMesh.position.set(0, 0, -boardThick / 2);
+            boardMesh.receiveShadow = true;
+            boardGroup.add(boardMesh);
 
-            const holeGeo = new THREE.CircleGeometry(board.holeDiameter / 2, 12);
-            const holeMat = new THREE.MeshBasicMaterial({ color: boardColorObj.hole });
-            const instHoles = new THREE.InstancedMesh(holeGeo, holeMat, board.cols * board.rows);
+            const borderT = 4;
+            const topBar = new THREE.Mesh(new THREE.BoxGeometry(boardW + borderT * 2, borderT, boardThick + 1), rimMat);
+            topBar.position.set(0, boardH / 2 + borderT / 2, -boardThick / 2);
+            const botBar = topBar.clone();
+            botBar.position.y = -boardH / 2 - borderT / 2;
+            const leftBar = new THREE.Mesh(new THREE.BoxGeometry(borderT, boardH, boardThick + 1), rimMat);
+            leftBar.position.set(-boardW / 2 - borderT / 2, 0, -boardThick / 2);
+            const rightBar = leftBar.clone();
+            rightBar.position.x = boardW / 2 + borderT / 2;
+            boardGroup.add(topBar, botBar, leftBar, rightBar);
+
+            const totalHoles = board.cols * board.rows;
+            const holeCylGeo = new THREE.CylinderGeometry(board.holeDiameter / 2, board.holeDiameter / 2, boardThick + 0.5, 12);
+            holeCylGeo.rotateX(Math.PI / 2);
+            const instHoles = new THREE.InstancedMesh(holeCylGeo, holeMat, totalHoles);
             const dummy = new THREE.Object3D();
             let idx = 0;
             for (let r = 0; r < board.rows; r++) {
               for (let c = 0; c < board.cols; c++) {
-                dummy.position.set(-boardW / 2 + (c + 0.5) * board.pitch, boardH / 2 - (r + 0.5) * board.pitch, 0.25);
+                dummy.position.set(-boardW / 2 + (c + 0.5) * board.pitch, boardH / 2 - (r + 0.5) * board.pitch, -boardThick / 2);
                 dummy.updateMatrix();
                 instHoles.setMatrixAt(idx++, dummy.matrix);
               }
             }
             instHoles.computeBoundingSphere();
-            root.add(instHoles);
+            boardGroup.add(instHoles);
+
+            const standoffGeo = new THREE.CylinderGeometry(5, 5, 10, 14);
+            standoffGeo.rotateX(Math.PI / 2);
+            [
+              [-boardW / 2 + 18, boardH / 2 - 18],
+              [boardW / 2 - 18, boardH / 2 - 18],
+              [-boardW / 2 + 18, -boardH / 2 + 18],
+              [boardW / 2 - 18, -boardH / 2 + 18],
+            ].forEach(([sx, sy]) => {
+              const standoff = new THREE.Mesh(standoffGeo, rimMat);
+              standoff.position.set(sx, sy, -boardThick - 5);
+              boardGroup.add(standoff);
+            });
+
+            root.add(boardGroup);
           }
 
-          const visibleItems = isolateSelected && selectedId ? items.filter((it) => it.id === selectedId) : items;
-
-          visibleItems.forEach((item) => {
-            const g = new THREE.Group();
-            const mat = item.id === selectedId ? holderSelectedMat : holderMat;
-            const cx = isolateSelected ? 0 : -boardW / 2 + item.xMm + item.widthMm / 2;
-            const cy = isolateSelected ? 0 : boardH / 2 - item.yMm - item.heightMm / 2;
-            g.position.set(cx, cy, 0);
-            g.rotation.z = -(item.rotation * Math.PI) / 180;
-
-            const plateH = item.type === 'bitsholder' ? item.heightMm : Math.min(item.heightMm, 52);
-            const plate = new THREE.Mesh(new THREE.BoxGeometry(item.widthMm - 8, plateH, 5), mat);
-            plate.position.set(0, item.heightMm / 2 - plateH / 2 - 4, 2.5);
-            g.add(plate);
-
-            const pegL = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 2.8, 10, 12), mat);
-            pegL.rotation.x = Math.PI / 2;
-            pegL.position.set(-item.widthMm / 2 + 16, item.heightMm / 2 - 14, -4);
-            g.add(pegL);
-            const pegR = pegL.clone();
-            pegR.position.x = item.widthMm / 2 - 16;
-            g.add(pegR);
-
-            if (item.type === 'fastnokkelholder') {
-              const sizes = (item.config && item.config.sizes) || [8, 10, 12, 13, 14, 17, 19];
-              const shelf = new THREE.Mesh(new THREE.BoxGeometry(item.widthMm - 10, 12, 34), mat);
-              shelf.position.set(0, item.heightMm / 2 - 28, 17);
-              g.add(shelf);
-              const usableW = Math.max(40, item.widthMm - 28);
-              const step = sizes.length > 1 ? usableW / (sizes.length - 1) : 0;
-              sizes.forEach((sz, i) => {
-                const wx = sizes.length === 1 ? 0 : -usableW / 2 + i * step;
-                if (showTools3D) {
-                  const len = Math.min(item.heightMm - 32, 95 + Number(sz) * 6.5);
-                  const wrench = new THREE.Mesh(new THREE.BoxGeometry(7, len, 4.5), steelMat);
-                  wrench.position.set(wx, item.heightMm / 2 - 28 - len / 2 + 10, 22);
-                  g.add(wrench);
-                }
-              });
-            } else if (item.type === 'bitsholder') {
-              const shelf = new THREE.Mesh(new THREE.BoxGeometry(item.widthMm - 6, 18, 26), mat);
-              shelf.position.set(0, -4, 13);
-              g.add(shelf);
-              const bits = (item.config && item.config.bits) || [];
-              const step = bits.length ? (item.widthMm - 20) / bits.length : 12;
-              if (showTools3D) {
-                bits.forEach((_, i) => {
-                  const bx = -(item.widthMm - 20) / 2 + i * step + step / 2;
-                  const bit = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.2, 24, 6), steelMat);
-                  bit.position.set(bx, 10, 14);
-                  g.add(bit);
-                });
-              }
-            } else if (item.type === 'klohammer') {
-              [-20, 20].forEach((fx) => {
-                const fork = new THREE.Mesh(new THREE.BoxGeometry(10, 14, 42), mat);
-                fork.position.set(fx, item.heightMm / 2 - 36, 21);
-                g.add(fork);
-              });
-              if (showTools3D) {
-                const head = new THREE.Mesh(new THREE.BoxGeometry(106, 24, 24), steelMat);
-                head.position.set(0, item.heightMm / 2 - 26, 24);
-                g.add(head);
-                const shaft = new THREE.Mesh(new THREE.CylinderGeometry(9, 10, item.heightMm - 60, 12), gripMat);
-                shaft.position.set(0, -14, 24);
-                g.add(shaft);
-              }
-            } else {
-              [-14, 14].forEach((px) => {
-                const prong = new THREE.Mesh(new THREE.BoxGeometry(8, 12, 32), mat);
-                prong.position.set(px, item.heightMm / 2 - 36, 16);
-                g.add(prong);
-              });
-              if (showTools3D) {
-                const body = new THREE.Mesh(new THREE.BoxGeometry(22, item.heightMm - 36, 12), gripMat);
-                body.position.set(0, -10, 18);
-                g.add(body);
-              }
-            }
-            root.add(g);
+          // 2. PARAMETRISKE 3D-HOLDERE + VALGFRIE VERKTØY
+          const { toolsRoot } = buildHolders3D(THREE, items, board, mount, {
+            selectedId,
+            isolateSelected,
+            showTools: showTools3D,
+            targetPrintableGroup: printableRoot,
           });
-        }, [threeReady, board, items, selectedId, isolateSelected, showTools3D]);
+          if (showTools3D) {
+            root.add(toolsRoot);
+          }
+        }, [threeReady, board, mount, items, selectedId, isolateSelected, showTools3D]);
 
         const handleExportSTL = () => {
-          if (!window.THREE_KIT || !sceneGroupRef.current) return;
-          const exporter = new window.THREE_KIT.STLExporter();
-          const stlString = exporter.parse(sceneGroupRef.current);
-          const blob = new Blob([stlString], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = isolateSelected && selectedId ? `holder-${selectedId}.stl` : 'verktoytavle.stl';
-          a.click();
-          URL.revokeObjectURL(url);
-          setExportStatus('STL eksportert');
-          setTimeout(() => setExportStatus(''), 2500);
+          const fname = isolateSelected && selectedId ? `holder-${selectedId}.stl` : 'verktoyholdere.stl';
+          const res = exportHoldersToBinarySTL(items, board, mount, {
+            filename: fname,
+            selectedId,
+            isolateSelected,
+          });
+          setExportStatus(res.ok ? 'STL-fil lastet ned!' : res.message);
+          onNotifyStl?.(res);
+          setTimeout(() => setExportStatus(''), 2800);
         };
 
-        const resetCamera = () => {
-          if (cameraRef.current && controlsRef.current) {
-            cameraRef.current.position.set(0, -180, 950);
-            controlsRef.current.target.set(0, 0, 0);
-            controlsRef.current.update();
-          }
+        const setCameraPreset = (preset) => {
+          if (!cameraRef.current || !controlsRef.current) return;
+          const cam = cameraRef.current;
+          const ctrl = controlsRef.current;
+          ctrl.target.set(0, 0, 0);
+          if (preset === 'front') cam.position.set(0, 0, 980);
+          else if (preset === 'angle') cam.position.set(280, -200, 900);
+          else if (preset === 'back') cam.position.set(260, 120, -680);
+          ctrl.update();
         };
 
         return (
           <div className="relative w-full h-full bg-[#0f1c2e]">
             <div ref={mountRef} className="w-full h-full" />
+
+            {/* Kameravinkel-hurtigvalg oppe til venstre */}
+            <div className="absolute top-3 left-4 z-10 flex items-center gap-1.5 bg-[#132338] border border-[#263f61] rounded-lg p-1">
+              <button
+                onClick={() => setCameraPreset('front')}
+                className="px-2.5 py-1 rounded text-xs font-medium text-slate-200 hover:bg-[#1c3352] whitespace-nowrap"
+              >
+                Forfra
+              </button>
+              <button
+                onClick={() => setCameraPreset('angle')}
+                className="px-2.5 py-1 rounded text-xs font-medium text-slate-200 hover:bg-[#1c3352] whitespace-nowrap"
+              >
+                Skrått 3/4
+              </button>
+              <button
+                onClick={() => setCameraPreset('back')}
+                title="Roter bak tavlen for å se skruehullene"
+                className="px-2.5 py-1 rounded text-xs font-medium text-sky-200 hover:bg-[#1c3352] whitespace-nowrap"
+              >
+                Bakside (skruehull)
+              </button>
+            </div>
+
+            {/* Kontroller oppe til høyre */}
             <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
               <button
                 onClick={() => setIsolateSelected((v) => !v)}
@@ -888,21 +1947,17 @@
                 {showTools3D ? 'Verktøy: Vises' : 'Kun holdere'}
               </button>
               <button
-                onClick={resetCamera}
-                className="px-3 py-1.5 rounded-md text-xs font-medium bg-[#132338] text-slate-200 border border-[#263f61] hover:border-sky-400/60 whitespace-nowrap"
-              >
-                Nullstill visning
-              </button>
-              <button
                 onClick={handleExportSTL}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-sky-200 text-slate-950 hover:bg-sky-100 transition-colors whitespace-nowrap"
               >
                 <Icon name="download" className="w-3.5 h-3.5" />
-                <span>{exportStatus || 'Eksporter STL'}</span>
+                <span>{exportStatus || 'Last ned STL'}</span>
               </button>
             </div>
-            <div className="absolute bottom-3 left-4 z-10 text-xs text-slate-400 pointer-events-none">
-              Dra for å rotere · Høyreklikk-dra for å panorere · Rull for å zoome
+
+            {/* Norsk hjelpetekst for kamerastyring */}
+            <div className="absolute bottom-3 left-4 z-10 px-3 py-1.5 rounded-md bg-[#0b1523]/90 border border-[#243b5c] text-xs text-slate-300 pointer-events-none">
+              Kamerastyring: Venstreklikk + dra for å rotere · Høyreklikk + dra for å panorere · Musehjul for å zoome
             </div>
           </div>
         );
@@ -918,7 +1973,19 @@
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
               const parsed = JSON.parse(raw);
-              if (parsed && parsed.board && Array.isArray(parsed.items)) return parsed;
+              if (parsed && parsed.board && Array.isArray(parsed.items)) {
+                const validMount = parsed.mount && MOUNT_STYLES.some((s) => s.id === parsed.mount.styleId);
+                const normalizedMount = validMount ? parsed.mount : INITIAL_MOUNT;
+                const normalizedItems = parsed.items.map((it) => {
+                  const dims = computeItemDimensions(it.type, it.config);
+                  return { ...it, ...dims };
+                });
+                return {
+                  board: parsed.board,
+                  mount: normalizedMount,
+                  items: normalizedItems,
+                };
+              }
             }
           } catch {}
           return { board: INITIAL_BOARD, mount: INITIAL_MOUNT, items: INITIAL_ITEMS };
@@ -926,7 +1993,7 @@
 
         const initial = useMemo(() => loadInitial(), []);
         const [board, setBoard] = useState(initial.board);
-        const [mount, setMount] = useState(initial.mount || INITIAL_MOUNT);
+        const [mount, setMount] = useState(initial.mount);
         const [items, setItems] = useState(initial.items);
 
         const [past, setPast] = useState([]);
@@ -937,6 +2004,10 @@
         const [selectedId, setSelectedId] = useState(initial.items[0]?.id || null);
         const [searchQuery, setSearchQuery] = useState('');
         const [categoryFilter, setCategoryFilter] = useState('Alle');
+        const [openFitIdx, setOpenFitIdx] = useState(null);
+        const [pocketDepthOpen, setPocketDepthOpen] = useState(false);
+        const [forkFitOpen, setForkFitOpen] = useState(true);
+        const [mountPlaceOpen, setMountPlaceOpen] = useState(false);
 
         const [snapToGrid, setSnapToGrid] = useState(true);
         const [showYourTools, setShowYourTools] = useState(true);
@@ -1018,14 +2089,25 @@
           setItems(next);
         }, [future, items]);
 
-        const snapCoord = useCallback(
-          (valMm, maxMm, sizeMm) => {
-            const clamped = Math.max(0, Math.min(maxMm - sizeMm, valMm));
-            if (!snapToGrid) return Number(clamped.toFixed(1));
-            const snapped = Math.round(clamped / board.pitch) * board.pitch;
-            return Number(Math.max(0, Math.min(maxMm - sizeMm, snapped)).toFixed(2));
+        const snapItem = useCallback(
+          (valX, valY, item) => snapItemPosition(valX, valY, item, board, mount, snapToGrid),
+          [board, mount, snapToGrid]
+        );
+
+        const updateBoard = useCallback(
+          (patch) => {
+            const nextBoard = { ...board, ...patch };
+            setBoard(nextBoard);
+            if (snapToGrid && (patch.pitch !== undefined || patch.cols !== undefined || patch.rows !== undefined)) {
+              setItems((prev) =>
+                prev.map((it) => ({
+                  ...it,
+                  ...snapItemPosition(it.xMm, it.yMm, it, nextBoard, mount, true),
+                }))
+              );
+            }
           },
-          [snapToGrid, board.pitch]
+          [board, mount, snapToGrid]
         );
 
         const findOpenSpot = useCallback(
@@ -1050,11 +2132,9 @@
           (catalogTool, dropPos = null) => {
             const configCopy = JSON.parse(JSON.stringify(catalogTool.defaultConfig));
             const dims = computeItemDimensions(catalogTool.id, configCopy);
+            const draftItem = { type: catalogTool.id, rotation: 0, config: configCopy, ...dims };
             const pos = dropPos
-              ? {
-                  xMm: snapCoord(dropPos.xMm - dims.widthMm / 2, boardWidthMm, dims.widthMm),
-                  yMm: snapCoord(dropPos.yMm - dims.heightMm / 2, boardHeightMm, dims.heightMm),
-                }
+              ? snapItem(dropPos.xMm - dims.widthMm / 2, dropPos.yMm - dims.heightMm / 2, draftItem)
               : findOpenSpot(dims.widthMm, dims.heightMm);
 
             const newItem = {
@@ -1074,7 +2154,7 @@
             setSelectedId(newItem.id);
             setViewMode('planner');
           },
-          [items, commitItems, findOpenSpot, snapCoord, boardWidthMm, boardHeightMm]
+          [items, commitItems, findOpenSpot, snapItem]
         );
 
         const removeItem = useCallback(
@@ -1097,6 +2177,7 @@
               name: `${src.name} (kopi)`,
               xMm: pos.xMm,
               yMm: pos.yMm,
+              rotation: 0,
             };
             commitItems([...items, copy]);
             setSelectedId(copy.id);
@@ -1111,11 +2192,16 @@
               if (it.id !== selectedId) return it;
               const updated = typeof updater === 'function' ? updater(it) : { ...it, ...updater };
               const dims = computeItemDimensions(updated.type, updated.config);
-              return { ...updated, ...dims };
+              const withDims = { ...updated, ...dims };
+              if (snapToGrid) {
+                const snapped = snapItemPosition(withDims.xMm, withDims.yMm, withDims, board, mount, true);
+                return { ...withDims, ...snapped };
+              }
+              return withDims;
             });
             commitItems(next);
           },
-          [selectedId, items, commitItems]
+          [selectedId, items, commitItems, snapToGrid, board, mount]
         );
 
         useEffect(() => {
@@ -1158,6 +2244,24 @@
           });
         };
 
+        const handleResizeHandlePointerDown = (e, item, corner) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          setSelectedId(item.id);
+          const pf = normalizePliersConfig(item.type, item.config);
+          setDragInfo({
+            type: 'resize-pliers',
+            itemId: item.id,
+            corner,
+            startClientX: e.clientX,
+            startClientY: e.clientY,
+            origItem: item,
+            origPliers: pf,
+            snapshotItems: items,
+            moved: false,
+          });
+        };
+
         const handleViewportPointerDown = (e) => {
           if (e.button !== 0) return;
           if (e.target === viewportRef.current || e.target.dataset.boardBg === 'true') {
@@ -1185,20 +2289,48 @@
               setItems((prev) =>
                 prev.map((it) => {
                   if (it.id !== dragInfo.itemId) return it;
-                  const effW = it.rotation % 180 === 0 ? it.widthMm : it.heightMm;
-                  const effH = it.rotation % 180 === 0 ? it.heightMm : it.widthMm;
+                  const snapped = snapItem(dragInfo.origX + dx / zoom, dragInfo.origY + dy / zoom, it);
                   return {
                     ...it,
-                    xMm: snapCoord(dragInfo.origX + dx / zoom, boardWidthMm, effW),
-                    yMm: snapCoord(dragInfo.origY + dy / zoom, boardHeightMm, effH),
+                    xMm: snapped.xMm,
+                    yMm: snapped.yMm,
                   };
+                })
+              );
+              if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragInfo.moved = true;
+              return;
+            }
+            if (dragInfo.type === 'resize-pliers') {
+              const signY = dragInfo.corner.includes('n') ? -1 : 1;
+              const signX = dragInfo.corner.includes('w') ? -1 : 1;
+              const deltaH = (dy / zoom) * signY;
+              const deltaW = (dx / zoom) * signX * 2;
+              const origP = dragInfo.origPliers;
+              let nextConfig;
+              if (origP.keepProportions) {
+                const targetLen = Math.max(90, Math.min(340, origP.overallLengthMm + deltaH));
+                nextConfig = applyPliersFieldUpdate(dragInfo.origItem.type, dragInfo.origItem.config, 'overallLengthMm', targetLen);
+              } else {
+                const step1 = applyPliersFieldUpdate(dragInfo.origItem.type, dragInfo.origItem.config, 'overallLengthMm', origP.overallLengthMm + deltaH);
+                nextConfig = applyPliersFieldUpdate(dragInfo.origItem.type, step1, 'handleSpreadMm', origP.handleSpreadMm + deltaW);
+              }
+              setItems((prev) =>
+                prev.map((it) => {
+                  if (it.id !== dragInfo.itemId) return it;
+                  const dims = computeItemDimensions(it.type, nextConfig);
+                  const updated = { ...it, config: nextConfig, ...dims };
+                  if (snapToGrid) {
+                    const snapped = snapItemPosition(updated.xMm, updated.yMm, updated, board, mount, true);
+                    return { ...updated, ...snapped };
+                  }
+                  return updated;
                 })
               );
               if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragInfo.moved = true;
             }
           };
           const onPointerUp = () => {
-            if (dragInfo.type === 'item' && dragInfo.moved) {
+            if ((dragInfo.type === 'item' || dragInfo.type === 'resize-pliers') && dragInfo.moved) {
               setPast((prev) => [...prev.slice(-39), dragInfo.snapshotItems]);
               setFuture([]);
             }
@@ -1210,7 +2342,7 @@
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
           };
-        }, [dragInfo, zoom, snapCoord, boardWidthMm, boardHeightMm]);
+        }, [dragInfo, zoom, snapItem, snapToGrid, board, mount]);
 
         const handleWheel = (e) => {
           if (viewMode !== 'planner' || !viewportRef.current) return;
@@ -1254,6 +2386,20 @@
         const selectedItem = items.find((i) => i.id === selectedId) || null;
         const totalParts = items.length;
 
+        const [stlToast, setStlToast] = useState(null);
+        const stlToastTimerRef = useRef(null);
+
+        const showStlNotification = useCallback((res) => {
+          if (stlToastTimerRef.current) clearTimeout(stlToastTimerRef.current);
+          setStlToast(res);
+          stlToastTimerRef.current = setTimeout(() => setStlToast(null), 3500);
+        }, []);
+
+        const handleDownloadSTL = useCallback(() => {
+          const res = exportHoldersToBinarySTL(items, board, mount, { filename: 'verktoyholdere.stl' });
+          showStlNotification(res);
+        }, [items, board, mount, showStlNotification]);
+
         const exportJsonLayout = () => {
           const blob = new Blob([JSON.stringify({ board, mount, items }, null, 2)], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
@@ -1286,7 +2432,7 @@
               </div>
 
               <div className="flex items-center gap-2.5 shrink-0">
-                <span className="hidden md:inline text-xs text-slate-400 mr-2 whitespace-nowrap">
+                <span className="hidden lg:inline text-xs text-slate-400 mr-1 whitespace-nowrap">
                   Lagret på denne enheten
                 </span>
                 <button
@@ -1309,14 +2455,40 @@
                 </button>
                 <button
                   onClick={() => setActiveRail('print')}
-                  title="Åpne utskrift og eksport"
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-sky-200 text-slate-950 hover:bg-sky-100 transition-colors whitespace-nowrap"
+                  title="Åpne utskrift og oversikt"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#132338] border border-[#243b5c] text-slate-200 hover:border-sky-400/60 transition-colors whitespace-nowrap"
                 >
                   <Icon name="print" className="w-3.5 h-3.5" />
                   <span>Skriv ut plan</span>
                 </button>
+                <button
+                  onClick={handleDownloadSTL}
+                  title="Eksporter alle holdere til binær STL-fil (verktoyholdere.stl)"
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-sky-200 text-slate-950 hover:bg-sky-100 transition-colors whitespace-nowrap"
+                >
+                  <Icon name="download" className="w-3.5 h-3.5" />
+                  <span>Last ned STL</span>
+                </button>
               </div>
             </header>
+
+            {stlToast && (
+              <div
+                role="status"
+                aria-live="polite"
+                className={`no-print fixed top-16 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-medium shadow-xl ${
+                  stlToast.ok
+                    ? 'bg-[#0f2438] border-sky-400/70 text-sky-100'
+                    : 'bg-[#2a1620] border-rose-400/70 text-rose-100'
+                }`}
+              >
+                <Icon name={stlToast.ok ? 'check' : 'x'} className="w-4 h-4 shrink-0 text-sky-300" />
+                <span>
+                  {stlToast.message}
+                  {stlToast.ok && ` (verktoyholdere.stl · ${stlToast.count} ${stlToast.count === 1 ? 'holder' : 'holdere'})`}
+                </span>
+              </div>
+            )}
 
             {/* HOVEDINNHOLD */}
             <div className="flex-1 flex min-h-0 overflow-hidden">
@@ -1345,7 +2517,7 @@
               </nav>
 
               {/* UTVIDET SIDEPANEL */}
-              <aside className="no-print w-[308px] shrink-0 bg-[#0f1c2e] border-r border-[#1b2e47] flex flex-col min-h-0">
+              <aside className="no-print w-[332px] shrink-0 bg-[#0f1c2e] border-r border-[#1b2e47] flex flex-col min-h-0">
                 {activeRail === 'add' && (
                   <div className="flex flex-col h-full min-h-0">
                     <div className="p-4 border-b border-[#1b2e47] space-y-3">
@@ -1412,6 +2584,8 @@
                                 <svg viewBox={`-4 -4 ${dims.widthMm + 8} ${dims.heightMm + 8}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
                                   <ToolIllustrationSVG
                                     item={{ type: tool.id, widthMm: dims.widthMm, heightMm: dims.heightMm, config: tool.defaultConfig }}
+                                    pitch={board.pitch}
+                                    mount={mount}
                                     showTool={true}
                                     isPreview={true}
                                   />
@@ -1471,10 +2645,197 @@
                       <>
                         <div className="flex items-center justify-between gap-2 pt-1">
                           <h2 className="text-lg font-semibold text-slate-100 truncate">{selectedItem.name}</h2>
-                          <span className="text-xs text-sky-300 font-mono tabular-nums whitespace-nowrap">
-                            {selectedItem.widthMm} × {selectedItem.heightMm} mm
+                          <span className="px-2 py-0.5 rounded-md bg-[#132338] border border-[#2b4970] text-[11px] font-medium text-sky-200 shrink-0">
+                            {isPliersType(selectedItem.type) ? 'Verktøy + holder' : 'Utskriftsklar'}
                           </span>
                         </div>
+
+                        {isPliersType(selectedItem.type) && (() => {
+                          const pf = computePliersForkMetrics(selectedItem.type, selectedItem.config);
+                          const updateField = (field, value) => {
+                            const nextCfg = applyPliersFieldUpdate(selectedItem.type, selectedItem.config, field, value);
+                            updateSelectedItem({ config: nextCfg });
+                          };
+                          const forkTitle =
+                            selectedItem.type === 'spisstang'
+                              ? 'Spisstanggaffel'
+                              : selectedItem.type === 'avbiter'
+                              ? 'Avbitergaffel'
+                              : 'Tanggaffel';
+
+                          return (
+                            <div className="space-y-3.5 pt-1">
+                              {/* Verktøystørrelse og proporsjoner */}
+                              <div className="space-y-2.5">
+                                <div className="text-xs font-semibold text-slate-200">Verktøystørrelse</div>
+
+                                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-200 select-none">
+                                  <input
+                                    type="checkbox"
+                                    checked={pf.keepProportions}
+                                    onChange={(e) =>
+                                      updateSelectedItem({
+                                        config: { ...(selectedItem.config || {}), ...pf, keepProportions: e.target.checked },
+                                      })
+                                    }
+                                    className="w-3.5 h-3.5 rounded accent-sky-400"
+                                  />
+                                  <span>Behold verktøyproporsjoner</span>
+                                </label>
+
+                                <button
+                                  onClick={() => {
+                                    const tpl = PLIERS_TEMPLATES[selectedItem.type] || PLIERS_TEMPLATES.tang;
+                                    updateSelectedItem({ config: { ...tpl } });
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200 transition-colors"
+                                >
+                                  Gjenopprett standardform
+                                </button>
+
+                                <p className="text-[11px] text-slate-400 leading-relaxed">
+                                  Dra et blått håndtak på tavlen eller skriv inn et mål. Slå av proporsjoner for å endre én dimensjon.
+                                </p>
+                              </div>
+
+                              {/* Verktøymål-kort med illustrasjon */}
+                              <div className="p-3 rounded-xl bg-[#0b1523] border border-[#223959] flex items-center gap-3">
+                                <svg viewBox="0 0 42 56" className="w-10 h-14 shrink-0">
+                                  <path d="M16 4 L12 20 L21 24 L30 20 L26 4 Z" fill="#cbd5e1" stroke="#64748b" strokeWidth="1" />
+                                  <circle cx="21" cy="21" r="4" fill="#94a3b8" stroke="#475569" strokeWidth="1" />
+                                  <path d="M18 24 Q10 38 12 52 L16 52 Q16 39 20 26 Z" fill="#ea580c" />
+                                  <path d="M24 24 Q32 38 30 52 L26 52 Q26 39 22 26 Z" fill="#ea580c" />
+                                  <line x1="6" y1="23" x2="36" y2="23" stroke="#7dd3fc" strokeWidth="1" strokeDasharray="2 2" />
+                                </svg>
+                                <div className="min-w-0 space-y-1">
+                                  <div className="text-xs font-semibold text-slate-100">Verktøymål</div>
+                                  <p className="text-[11px] text-slate-400 leading-snug">
+                                    Mål fra kjeftspissen til enden av håndtakene. Skulderen er der hodet hviler på gaffelen.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Totallengde, Håndtaksbredde, Kjeft til bæreskulder */}
+                              {[
+                                { key: 'overallLengthMm', label: 'Totallengde', min: 90, max: 320, step: 0.5 },
+                                { key: 'handleSpreadMm', label: 'Håndtaksbredde', min: 30, max: 160, step: 0.5 },
+                                { key: 'jawToShoulderMm', label: 'Kjeft til bæreskulder', min: 25, max: 160, step: 0.5 },
+                              ].map((dim) => (
+                                <div key={dim.key} className="space-y-1.5">
+                                  <div className="flex items-center justify-between gap-2 text-xs">
+                                    <span className="text-slate-200">{dim.label}</span>
+                                    <div className="flex items-center gap-1.5">
+                                      <input
+                                        type="number"
+                                        step={dim.step}
+                                        min={dim.min}
+                                        max={dim.max}
+                                        value={Math.round(pf[dim.key] * 100) / 100}
+                                        onChange={(e) => updateField(dim.key, e.target.value)}
+                                        className="w-20 px-2 py-1 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-right text-slate-100 focus:outline-none focus:border-sky-400"
+                                      />
+                                      <span className="text-[11px] text-slate-400">mm</span>
+                                    </div>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    min={dim.min}
+                                    max={dim.max}
+                                    step={dim.step}
+                                    value={pf[dim.key]}
+                                    onChange={(e) => updateField(dim.key, e.target.value)}
+                                    className="w-full accent-sky-400"
+                                  />
+                                </div>
+                              ))}
+
+                              {/* Kort for 3D-printbar gaffelholder */}
+                              <div className="p-3 rounded-xl bg-[#0b1523] border border-[#223959] space-y-2">
+                                <button
+                                  onClick={() => setViewMode('3d')}
+                                  className="w-full flex items-center gap-3 text-left group"
+                                  title="Inspiser tanggaffelen i 3D"
+                                >
+                                  <div className="w-12 h-12 rounded-lg bg-[#122338] border border-[#274469] flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 40 40" className="w-9 h-9">
+                                      <rect x="6" y="8" width="28" height="14" rx="2" fill="#4f82bd" />
+                                      <circle cx="12" cy="15" r="2.2" fill="#0b1523" />
+                                      <circle cx="28" cy="15" r="2.2" fill="#0b1523" />
+                                      <rect x="11" y="18" width="5" height="15" rx="1.5" fill="#93c5fd" />
+                                      <rect x="24" y="18" width="5" height="15" rx="1.5" fill="#93c5fd" />
+                                    </svg>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-[10px] font-medium text-sky-300">Utskriftsklar holder</div>
+                                    <div className="text-xs font-semibold text-slate-100 truncate">{forkTitle}</div>
+                                    <div className="text-[11px] font-mono tabular-nums text-slate-300">
+                                      {pf.forkOpeningMm.toFixed(1)} mm gaffelåpning
+                                    </div>
+                                  </div>
+                                  <span className="text-slate-400 group-hover:text-sky-200 text-sm pr-1">›</span>
+                                </button>
+                                <p className="text-[11px] text-slate-400 leading-snug pt-1 border-t border-[#1b2e47]">
+                                  Hodet hviler på de to armene. Halsen glir inn gjennom den åpne fronten.
+                                </p>
+                              </div>
+
+                              {/* Gaffeltilpasning (trekkspill) */}
+                              <div className="border-t border-[#1b2e47] pt-2">
+                                <button
+                                  onClick={() => setForkFitOpen((v) => !v)}
+                                  className="w-full flex items-center justify-between py-1.5 text-xs font-medium text-slate-200 hover:text-white"
+                                >
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="text-slate-400 text-[10px]">{forkFitOpen ? '▼' : '▶'}</span>
+                                    <span>Gaffeltilpasning</span>
+                                  </span>
+                                  <span className="font-mono tabular-nums text-slate-300">{pf.forkOpeningMm.toFixed(1)} mm åpning</span>
+                                </button>
+
+                                {forkFitOpen && (
+                                  <div className="mt-2 space-y-3">
+                                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                                      Mål tvers over halsen rett under hodet, og deretter fra front til bak. Begge målene former gaffelåpningen.
+                                    </p>
+                                    {[
+                                      { key: 'neckWidthMm', label: 'Halsbredde', min: 10, max: 85, step: 0.1 },
+                                      { key: 'headWidthMm', label: 'Bærende hodebredde', min: 14, max: 105, step: 0.1 },
+                                      { key: 'thicknessMm', label: 'Verktøytykkelse', min: 6, max: 42, step: 0.1 },
+                                      { key: 'centerFromBoardMm', label: 'Verktøysenter fra tavle', min: 18, max: 70, step: 0.5 },
+                                    ].map((f) => (
+                                      <div key={f.key} className="space-y-1.5">
+                                        <div className="flex items-center justify-between gap-2 text-xs">
+                                          <span className="text-slate-200">{f.label}</span>
+                                          <div className="flex items-center gap-1.5">
+                                            <input
+                                              type="number"
+                                              step={f.step}
+                                              min={f.min}
+                                              max={f.max}
+                                              value={Math.round(pf[f.key] * 100) / 100}
+                                              onChange={(e) => updateField(f.key, e.target.value)}
+                                              className="w-20 px-2 py-1 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-right text-slate-100 focus:outline-none focus:border-sky-400"
+                                            />
+                                            <span className="text-[11px] text-slate-400">mm</span>
+                                          </div>
+                                        </div>
+                                        <input
+                                          type="range"
+                                          min={f.min}
+                                          max={f.max}
+                                          step={f.step}
+                                          value={pf[f.key]}
+                                          onChange={(e) => updateField(f.key, e.target.value)}
+                                          className="w-full accent-sky-400"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         {selectedItem.type === 'fastnokkelholder' && (
                           <div className="space-y-3 pt-1">
@@ -1506,7 +2867,10 @@
                                       <button
                                         onClick={() =>
                                           updateSelectedItem({
-                                            config: { ...selectedItem.config, sizes: selectedItem.config.sizes.filter((_, i) => i !== idx) },
+                                            config: {
+                                              unit: selectedItem.config.unit,
+                                              sizes: selectedItem.config.sizes.filter((_, i) => i !== idx),
+                                            },
                                           })
                                         }
                                         className="text-slate-400 hover:text-rose-300 ml-0.5"
@@ -1521,7 +2885,12 @@
                                   onClick={() => {
                                     const last = selectedItem.config.sizes[selectedItem.config.sizes.length - 1] || 19;
                                     const nextVal = selectedItem.config.unit === 'mm' ? Number(last) + 2 : Number((Number(last) + 0.125).toFixed(3));
-                                    updateSelectedItem({ config: { ...selectedItem.config, sizes: [...selectedItem.config.sizes, nextVal] } });
+                                    updateSelectedItem({
+                                      config: {
+                                        unit: selectedItem.config.unit,
+                                        sizes: [...selectedItem.config.sizes, nextVal],
+                                      },
+                                    });
                                   }}
                                   className="px-2.5 py-1 rounded-md bg-[#182b44] border border-sky-400/40 text-xs font-medium text-sky-200 hover:bg-[#1f3654]"
                                 >
@@ -1532,59 +2901,457 @@
                           </div>
                         )}
 
-                        {selectedItem.type === 'bitsholder' && (
+                        {selectedItem.type === 'bitsholder' && (() => {
+                          const rack = computeBitRackGeometry(selectedItem.widthMm, selectedItem.config);
+                          const updateBitConfig = (nextPockets, nextDepth = rack.pocketDepthMm) => {
+                            updateSelectedItem({
+                              config: {
+                                ...(selectedItem.config || {}),
+                                pocketDepthMm: nextDepth,
+                                pockets: nextPockets,
+                                bits: nextPockets.map((p) => p.label),
+                              },
+                            });
+                          };
+                          const setPocketCount = (targetCount) => {
+                            const count = Math.max(1, Math.min(24, Number(targetCount) || 1));
+                            const cur = [...rack.pockets];
+                            while (cur.length < count) {
+                              const extra = EXTRA_BIT_POCKETS[(cur.length - DEFAULT_BIT_POCKETS.length + 100) % EXTRA_BIT_POCKETS.length];
+                              cur.push({ ...extra, customDiameterMm: null });
+                            }
+                            if (cur.length > count) {
+                              cur.length = count;
+                            }
+                            if (openFitIdx !== null && openFitIdx >= count) setOpenFitIdx(null);
+                            updateBitConfig(cur);
+                          };
+                          const backRow = rack.placed.filter((p) => p.row === 0);
+                          const frontRow = rack.placed.filter((p) => p.row === 1);
+
+                          return (
+                            <div className="space-y-4">
+                              {/* Antall bits og bor */}
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-xs font-medium text-slate-300">Antall bits og bor</span>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    max="24"
+                                    value={rack.pockets.length}
+                                    onChange={(e) => setPocketCount(e.target.value)}
+                                    className="w-16 px-2.5 py-1 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-center text-slate-100 focus:outline-none focus:border-sky-400"
+                                  />
+                                </div>
+                                <input
+                                  type="range"
+                                  min="1"
+                                  max="24"
+                                  value={rack.pockets.length}
+                                  onChange={(e) => setPocketCount(e.target.value)}
+                                  className="w-full accent-sky-400"
+                                />
+                              </div>
+
+                              {/* Visuelt hulloppsett sett ovenfra */}
+                              <div className="p-3 rounded-xl bg-[#0b1523] border border-[#223959] space-y-2.5">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="font-semibold text-slate-100">Hulloppsett</span>
+                                  <span className="text-slate-400">Sett ovenfra</span>
+                                </div>
+
+                                <div className="p-2.5 rounded-lg bg-[#101e31] border border-[#1d3350] space-y-3">
+                                  <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.max(1, backRow.length)}, minmax(0, 1fr))` }}>
+                                    {backRow.map((p) => (
+                                      <div key={p.index} className="flex flex-col items-center gap-1 min-w-0">
+                                        <svg viewBox="0 0 18 18" className="w-4 h-4 shrink-0">
+                                          {p.kind === 'drill' ? (
+                                            <circle cx="9" cy="9" r="5.5" fill="none" stroke="#93c5fd" strokeWidth="1.4" />
+                                          ) : (
+                                            <polygon points="9,2.5 14.6,5.75 14.6,12.25 9,15.5 3.4,12.25 3.4,5.75" fill="none" stroke="#93c5fd" strokeWidth="1.4" />
+                                          )}
+                                        </svg>
+                                        <span className="text-[9px] leading-tight font-mono text-slate-300 truncate max-w-full text-center">
+                                          {p.label || '–'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  {frontRow.length > 0 && (
+                                    <div className="grid gap-1 pt-1 border-t border-[#1b2e47]/60" style={{ gridTemplateColumns: `repeat(${Math.max(1, backRow.length)}, minmax(0, 1fr))` }}>
+                                      {frontRow.map((p) => (
+                                        <div key={p.index} className="flex flex-col items-center gap-1 min-w-0">
+                                          <svg viewBox="0 0 18 18" className="w-4 h-4 shrink-0">
+                                            {p.kind === 'drill' ? (
+                                              <circle cx="9" cy="9" r="5.5" fill="none" stroke="#93c5fd" strokeWidth="1.4" />
+                                            ) : (
+                                              <polygon points="9,2.5 14.6,5.75 14.6,12.25 9,15.5 3.4,12.25 3.4,5.75" fill="none" stroke="#93c5fd" strokeWidth="1.4" />
+                                            )}
+                                          </svg>
+                                          <span className="text-[9px] leading-tight font-mono text-slate-300 truncate max-w-full text-center">
+                                            {p.label || '–'}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="text-[11px] text-slate-400">
+                                  {rack.rows === 2
+                                    ? 'Bakre rad øverst · fremre rad nederst'
+                                    : 'Enkel rad (over 7 stk gir automatisk to rader)'}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between text-[11px] font-mono tabular-nums text-slate-300 px-0.5">
+                                <span>{selectedItem.widthMm.toFixed(2)} mm bred</span>
+                                <span>{rack.depthFromBoardMm.toFixed(1)} mm fra tavle</span>
+                              </div>
+
+                              {/* Hurtigvalg for bits- og borsett */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  onClick={() => updateBitConfig(DEFAULT_BIT_POCKETS.map((p) => ({ ...p, customDiameterMm: null })), 12)}
+                                  className="py-1.5 px-2.5 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-[11px] font-medium text-slate-200"
+                                >
+                                  Bor + bits-sett (14)
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    updateBitConfig(
+                                      ['T10', 'T15', 'T20', 'T25', 'T30', 'PH1', 'PH2', 'PZ2', 'SL5', 'H4'].map((lbl) => ({
+                                        kind: 'driver',
+                                        label: lbl,
+                                        clearanceMm: 0.35,
+                                        customDiameterMm: null,
+                                      })),
+                                      12
+                                    )
+                                  }
+                                  className="py-1.5 px-2.5 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-[11px] font-medium text-slate-200"
+                                >
+                                  Kun skrubits (10)
+                                </button>
+                              </div>
+
+                              {/* Størrelser og merking */}
+                              <div className="space-y-2.5 pt-1 border-t border-[#1b2e47]">
+                                <div>
+                                  <div className="text-xs font-semibold text-slate-200">Størrelser og merking</div>
+                                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                                    Skriv inn bordiameter (4 mm eller 1/8&quot;) eller bitskode (PH2). Et rent tall bruker millimeter. Åpne Tilpass for å endre skaft og klaring.
+                                  </p>
+                                </div>
+
+                                <div className="grid grid-cols-[18px_72px_1fr_54px] gap-1.5 items-center text-[11px] text-slate-400 font-medium px-0.5">
+                                  <span>#</span>
+                                  <span>Type</span>
+                                  <span>Merking</span>
+                                  <span className="text-right pr-1">Tilpass</span>
+                                </div>
+
+                                <div className="space-y-1.5 max-h-[340px] overflow-y-auto pr-0.5">
+                                  {rack.placed.map((p, idx) => {
+                                    const rawPocket = rack.pockets[idx];
+                                    const isFitOpen = openFitIdx === idx;
+                                    const updateRow = (patch) => {
+                                      const nextPockets = rack.pockets.map((itemP, i) =>
+                                        i === idx ? { ...itemP, ...patch } : itemP
+                                      );
+                                      updateBitConfig(nextPockets);
+                                    };
+                                    return (
+                                      <div key={idx} className="space-y-1">
+                                        <div className="grid grid-cols-[18px_72px_1fr_54px] gap-1.5 items-center">
+                                          <span className="text-[11px] font-mono tabular-nums text-slate-400 text-center">
+                                            {idx + 1}
+                                          </span>
+                                          <select
+                                            value={rawPocket.kind}
+                                            onChange={(e) => updateRow({ kind: e.target.value })}
+                                            className="px-1.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs text-slate-100 focus:outline-none focus:border-sky-400"
+                                          >
+                                            <option value="drill">Bor</option>
+                                            <option value="driver">Bits</option>
+                                          </select>
+                                          <input
+                                            type="text"
+                                            value={rawPocket.label}
+                                            onChange={(e) => updateRow({ label: e.target.value })}
+                                            placeholder={rawPocket.kind === 'drill' ? '4 mm' : 'PH2'}
+                                            className="min-w-0 px-2 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono text-slate-100 focus:outline-none focus:border-sky-400"
+                                          />
+                                          <button
+                                            onClick={() => setOpenFitIdx(isFitOpen ? null : idx)}
+                                            className={`px-2 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+                                              isFitOpen
+                                                ? 'bg-sky-200 text-slate-950 border-sky-200'
+                                                : 'bg-[#132338] text-slate-200 border-[#243b5c] hover:border-sky-400/60'
+                                            }`}
+                                          >
+                                            Tilpass
+                                          </button>
+                                        </div>
+
+                                        {isFitOpen && (
+                                          <div className="ml-5 p-2.5 rounded-lg bg-[#0b1523] border border-[#263f61] space-y-2 text-[11px]">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <span className="text-slate-400">Skaftdiameter (mm)</span>
+                                              <div className="flex items-center gap-1.5">
+                                                <input
+                                                  type="number"
+                                                  step="0.1"
+                                                  min="1.5"
+                                                  max="22"
+                                                  value={
+                                                    rawPocket.customDiameterMm !== null && rawPocket.customDiameterMm !== undefined
+                                                      ? rawPocket.customDiameterMm
+                                                      : p.shankDiaMm
+                                                  }
+                                                  onChange={(e) => updateRow({ customDiameterMm: Number(e.target.value) || p.shankDiaMm })}
+                                                  className="w-16 px-2 py-1 rounded bg-[#101e31] border border-[#243b5c] font-mono tabular-nums text-right text-slate-100"
+                                                />
+                                                {rawPocket.customDiameterMm !== null && (
+                                                  <button
+                                                    onClick={() => updateRow({ customDiameterMm: null })}
+                                                    className="text-sky-300 hover:text-sky-200 underline"
+                                                  >
+                                                    Auto
+                                                  </button>
+                                                )}
+                                              </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-slate-400">Klaring (toleranse)</span>
+                                                <span className="font-mono tabular-nums text-sky-300">+{p.clearanceMm.toFixed(2)} mm</span>
+                                              </div>
+                                              <input
+                                                type="range"
+                                                min="0"
+                                                max="1.5"
+                                                step="0.05"
+                                                value={p.clearanceMm}
+                                                onChange={(e) => updateRow({ clearanceMm: Number(e.target.value) })}
+                                                className="w-full accent-sky-400"
+                                              />
+                                            </div>
+                                            <div className="text-[10px] font-mono tabular-nums text-slate-400 pt-0.5 border-t border-[#1b2e47]">
+                                              {p.kind === 'drill'
+                                                ? `Sylindrisk hull: Ø ${p.holeDiaMm.toFixed(2)} mm`
+                                                : `Sekskanthull 1/4": ${p.holeDiaMm.toFixed(2)} mm nøkkelvidde`}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              {/* Hulldybde (trekkspill) */}
+                              <div className="border-t border-[#1b2e47] pt-2">
+                                <button
+                                  onClick={() => setPocketDepthOpen((v) => !v)}
+                                  className="w-full flex items-center justify-between py-1.5 text-xs font-medium text-slate-200 hover:text-white"
+                                >
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="text-slate-400 text-[10px]">{pocketDepthOpen ? '▼' : '▶'}</span>
+                                    <span>Hulldybde</span>
+                                  </span>
+                                  <span className="font-mono tabular-nums text-slate-300">{rack.pocketDepthMm} mm</span>
+                                </button>
+                                {pocketDepthOpen && (
+                                  <div className="mt-2 p-2.5 rounded-lg bg-[#0b1523] border border-[#223959] space-y-2">
+                                    <div className="flex items-center justify-between text-[11px]">
+                                      <span className="text-slate-400">Dybde på hull (mm)</span>
+                                      <input
+                                        type="number"
+                                        min="6"
+                                        max="25"
+                                        step="1"
+                                        value={rack.pocketDepthMm}
+                                        onChange={(e) =>
+                                          updateBitConfig(
+                                            rack.pockets,
+                                            Math.max(6, Math.min(25, Number(e.target.value) || 12))
+                                          )
+                                        }
+                                        className="w-16 px-2 py-1 rounded bg-[#101e31] border border-[#243b5c] text-xs font-mono tabular-nums text-right text-slate-100"
+                                      />
+                                    </div>
+                                    <input
+                                      type="range"
+                                      min="6"
+                                      max="25"
+                                      step="1"
+                                      value={rack.pocketDepthMm}
+                                      onChange={(e) => updateBitConfig(rack.pockets, Number(e.target.value))}
+                                      className="w-full accent-sky-400"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {selectedItem.type === 'skrutrekkerholder' && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between text-xs">
-                              <span className="text-slate-300">Antall bits</span>
-                              <span className="font-mono tabular-nums text-sky-300">{selectedItem.config.bits.length} stk</span>
+                              <span className="text-slate-300">Antall skrutrekkerspor</span>
+                              <span className="font-mono tabular-nums text-sky-300">{selectedItem.config?.slots || 5} stk</span>
                             </div>
                             <input
                               type="range"
-                              min="4"
-                              max="16"
-                              value={selectedItem.config.bits.length}
+                              min="2"
+                              max="10"
+                              value={selectedItem.config?.slots || 5}
                               onChange={(e) => {
-                                const count = Number(e.target.value);
-                                const presets = ['T10', 'T15', 'T20', 'T25', 'T30', 'PH1', 'PH2', 'PH3', 'PZ1', 'PZ2', 'SL4', 'SL5', 'H3', 'H4', 'H5', 'H6'];
-                                updateSelectedItem({ config: { ...selectedItem.config, bits: presets.slice(0, count), bitCount: count } });
+                                const slots = Number(e.target.value);
+                                updateSelectedItem({ config: { slots } });
                               }}
                               className="w-full accent-sky-400"
                             />
                           </div>
                         )}
 
+                        {/* JUSTERING AV HOLDERSTØRRELSE + FESTE & PLASSERING */}
                         <div className="pt-2 border-t border-[#1b2e47] space-y-3">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-[11px] text-slate-400 mb-1">X-posisjon (mm)</label>
-                              <input
-                                type="number"
-                                step={snapToGrid ? board.pitch : 1}
-                                value={Math.round(selectedItem.xMm * 10) / 10}
-                                onChange={(e) => updateSelectedItem({ xMm: snapCoord(Number(e.target.value), boardWidthMm, selectedItem.widthMm) })}
-                                className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[11px] text-slate-400 mb-1">Y-posisjon (mm)</label>
-                              <input
-                                type="number"
-                                step={snapToGrid ? board.pitch : 1}
-                                value={Math.round(selectedItem.yMm * 10) / 10}
-                                onChange={(e) => updateSelectedItem({ yMm: snapCoord(Number(e.target.value), boardHeightMm, selectedItem.heightMm) })}
-                                className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
-                              />
-                            </div>
-                          </div>
-
                           <button
-                            onClick={() => updateSelectedItem({ rotation: (selectedItem.rotation + 90) % 360 })}
-                            title="Roter valgt holder 90 grader (Hurtigtast: R)"
-                            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                            onClick={() => setMountPlaceOpen((v) => !v)}
+                            className="w-full flex items-center justify-between py-1 text-xs font-medium text-slate-200 hover:text-white"
                           >
-                            <Icon name="rotate" className="w-3.5 h-3.5" />
-                            <span>Roter 90° ({selectedItem.rotation}°)</span>
+                            <span className="flex items-center gap-1.5">
+                              <span className="text-slate-400 text-[10px]">{mountPlaceOpen ? '▼' : '▶'}</span>
+                              <span>Størrelse, feste og plassering</span>
+                            </span>
+                            <span className="text-[11px] font-mono tabular-nums text-slate-400">
+                              {Math.round(selectedItem.widthMm)}×{Math.round(selectedItem.heightMm)}
+                            </span>
                           </button>
+
+                          {mountPlaceOpen && (
+                            <div className="space-y-3 pt-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-medium text-slate-300">Størrelse på holder (mm)</span>
+                                {(selectedItem.config?.customWidthMm || selectedItem.config?.customHeightMm) && (
+                                  <button
+                                    onClick={() => {
+                                      const nextCfg = { ...(selectedItem.config || {}) };
+                                      delete nextCfg.customWidthMm;
+                                      delete nextCfg.customHeightMm;
+                                      updateSelectedItem({ config: nextCfg });
+                                    }}
+                                    className="text-[11px] text-sky-300 hover:text-sky-200 underline"
+                                  >
+                                    Tilbakestill mål
+                                  </button>
+                                )}
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <label className="text-slate-400">Bredde (mm)</label>
+                                  <input
+                                    type="number"
+                                    step="1"
+                                    min="50"
+                                    max="500"
+                                    value={Math.round(selectedItem.widthMm * 10) / 10}
+                                    onChange={(e) => {
+                                      const val = Math.max(50, Math.min(500, Number(e.target.value) || 50));
+                                      updateSelectedItem({ config: { ...(selectedItem.config || {}), customWidthMm: val } });
+                                    }}
+                                    className="w-20 px-2 py-1 rounded bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-right text-slate-100"
+                                  />
+                                </div>
+                                <input
+                                  type="range"
+                                  min="50"
+                                  max="360"
+                                  step="1"
+                                  value={Math.min(360, Math.round(selectedItem.widthMm))}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    updateSelectedItem({ config: { ...(selectedItem.config || {}), customWidthMm: val } });
+                                  }}
+                                  className="w-full accent-sky-400"
+                                />
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <label className="text-slate-400">Lengde / høyde (mm)</label>
+                                  <input
+                                    type="number"
+                                    step="1"
+                                    min="40"
+                                    max="450"
+                                    value={Math.round(selectedItem.heightMm * 10) / 10}
+                                    onChange={(e) => {
+                                      const val = Math.max(40, Math.min(450, Number(e.target.value) || 40));
+                                      updateSelectedItem({ config: { ...(selectedItem.config || {}), customHeightMm: val } });
+                                    }}
+                                    className="w-20 px-2 py-1 rounded bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-right text-slate-100"
+                                  />
+                                </div>
+                                <input
+                                  type="range"
+                                  min="40"
+                                  max="380"
+                                  step="1"
+                                  value={Math.min(380, Math.round(selectedItem.heightMm))}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    updateSelectedItem({ config: { ...(selectedItem.config || {}), customHeightMm: val } });
+                                  }}
+                                  className="w-full accent-sky-400"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2 pt-1">
+                                <div>
+                                  <label className="block text-[11px] text-slate-400 mb-1">X-posisjon (mm)</label>
+                                  <input
+                                    type="number"
+                                    step={snapToGrid ? board.pitch : 1}
+                                    value={Math.round(selectedItem.xMm * 10) / 10}
+                                    onChange={(e) => {
+                                      const pos = snapItem(Number(e.target.value), selectedItem.yMm, selectedItem);
+                                      updateSelectedItem({ xMm: pos.xMm });
+                                    }}
+                                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[11px] text-slate-400 mb-1">Y-posisjon (mm)</label>
+                                  <input
+                                    type="number"
+                                    step={snapToGrid ? board.pitch : 1}
+                                    value={Math.round(selectedItem.yMm * 10) / 10}
+                                    onChange={(e) => {
+                                      const pos = snapItem(selectedItem.xMm, Number(e.target.value), selectedItem);
+                                      updateSelectedItem({ yMm: pos.yMm });
+                                    }}
+                                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                                  />
+                                </div>
+                              </div>
+
+                              <button
+                                onClick={() => updateSelectedItem({ rotation: (selectedItem.rotation + 90) % 360 })}
+                                title="Roter valgt holder 90 grader (Hurtigtast: R)"
+                                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                              >
+                                <Icon name="rotate" className="w-3.5 h-3.5" />
+                                <span>Roter 90° ({selectedItem.rotation}°)</span>
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         <div className="pt-2 border-t border-[#1b2e47] space-y-3">
@@ -1642,7 +3409,7 @@
                         return (
                           <button
                             key={p.id}
-                            onClick={() => setBoard({ ...board, cols: p.cols, rows: p.rows, pitch: p.pitch })}
+                            onClick={() => updateBoard({ cols: p.cols, rows: p.rows, pitch: p.pitch })}
                             className={`w-full text-left px-3 py-2 rounded-lg text-xs border transition-colors ${
                               active ? 'bg-[#182b44] border-sky-400/60 text-sky-200 font-medium' : 'bg-[#132338] border-[#223959] text-slate-300 hover:border-sky-400/40'
                             }`}
@@ -1661,7 +3428,7 @@
                           min="8"
                           max="80"
                           value={board.cols}
-                          onChange={(e) => setBoard({ ...board, cols: Math.max(8, Math.min(80, Number(e.target.value) || 20)) })}
+                          onChange={(e) => updateBoard({ cols: Math.max(8, Math.min(80, Number(e.target.value) || 20)) })}
                           className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
                         />
                       </div>
@@ -1672,7 +3439,7 @@
                           min="8"
                           max="60"
                           value={board.rows}
-                          onChange={(e) => setBoard({ ...board, rows: Math.max(8, Math.min(60, Number(e.target.value) || 20)) })}
+                          onChange={(e) => updateBoard({ rows: Math.max(8, Math.min(60, Number(e.target.value) || 20)) })}
                           className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
                         />
                       </div>
@@ -1684,7 +3451,7 @@
                           min="10"
                           max="50"
                           value={board.pitch}
-                          onChange={(e) => setBoard({ ...board, pitch: Math.max(10, Math.min(50, Number(e.target.value) || 25.4)) })}
+                          onChange={(e) => updateBoard({ pitch: Math.max(10, Math.min(50, Number(e.target.value) || 25.4)) })}
                           className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
                         />
                       </div>
@@ -1729,25 +3496,78 @@
                 {activeRail === 'mount' && (
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     <div>
-                      <h2 className="text-sm font-semibold text-slate-100">Feste og klaring</h2>
-                      <p className="text-xs text-slate-400 mt-1">Velg hvordan 3D-printede holdere låses til verktøytavlen.</p>
+                      <h2 className="text-sm font-semibold text-slate-100">Skruefeste og klaring</h2>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Alle holdere har gjennomgående skruehull for 5 × 6,5 mm skruer (ingen pegs/tapper), plassert eksakt over tavlens hullmønster.
+                      </p>
+                      <div className="mt-2.5 p-2.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-[11px] text-sky-200 font-mono tabular-nums">
+                        Rutenett-tilpasning: CC {board.pitch} mm · Tavlehull Ø {board.holeDiameter} mm
+                      </div>
                     </div>
 
                     <div className="space-y-2">
                       {MOUNT_STYLES.map((style) => (
                         <button
                           key={style.id}
-                          onClick={() => setMount({ ...mount, styleId: style.id, clearanceMm: style.clearance })}
+                          onClick={() =>
+                            setMount({
+                              ...mount,
+                              styleId: style.id,
+                              screwDiaMm: style.screwDia,
+                              screwLenMm: style.screwLen,
+                              holeDiaMm: style.holeDia,
+                              clearanceMm: style.clearance,
+                            })
+                          }
                           className={`w-full text-left p-3 rounded-lg border transition-colors ${
                             mount.styleId === style.id ? 'bg-[#182b44] border-sky-400/70 text-slate-100' : 'bg-[#132338] border-[#223959] text-slate-300 hover:border-sky-400/40'
                           }`}
                         >
                           <div className="text-xs font-semibold">{style.name}</div>
                           <div className="text-[11px] text-slate-400 font-mono tabular-nums mt-1">
-                            Plugg: {style.pegDia} mm · Løfteklaring: {style.clearance} mm
+                            Skrue: {style.screwDia} × {style.screwLen} mm · Hull: Ø {style.holeDia} mm
                           </div>
                         </button>
                       ))}
+                    </div>
+
+                    <div className="pt-2 border-t border-[#1b2e47] grid grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Skruediameter (mm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="3"
+                          max="10"
+                          value={mount.screwDiaMm || 5.0}
+                          onChange={(e) => setMount({ ...mount, screwDiaMm: Math.max(3, Math.min(10, Number(e.target.value) || 5.0)) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-slate-400 mb-1">Skruelengde (mm)</label>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="4"
+                          max="25"
+                          value={mount.screwLenMm || 6.5}
+                          onChange={(e) => setMount({ ...mount, screwLenMm: Math.max(4, Math.min(25, Number(e.target.value) || 6.5)) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-[11px] text-slate-400 mb-1">Hulldiameter i holder (mm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="3"
+                          max="10"
+                          value={mount.holeDiaMm || 5.2}
+                          onChange={(e) => setMount({ ...mount, holeDiaMm: Math.max(3, Math.min(10, Number(e.target.value) || 5.2)) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[#0b1523] border border-[#243b5c] text-xs font-mono tabular-nums text-slate-100"
+                        />
+                      </div>
                     </div>
 
                     <div className="pt-2 border-t border-[#1b2e47] space-y-2">
@@ -1804,11 +3624,18 @@
 
                     <div className="pt-2 border-t border-[#1b2e47] space-y-2">
                       <button
-                        onClick={() => setViewMode('3d')}
+                        onClick={handleDownloadSTL}
                         className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-sky-200 text-slate-950 font-semibold text-xs hover:bg-sky-100"
                       >
+                        <Icon name="download" className="w-4 h-4" />
+                        <span>Last ned STL (verktoyholdere.stl)</span>
+                      </button>
+                      <button
+                        onClick={() => setViewMode('3d')}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#132338] border border-[#243b5c] hover:border-sky-400/60 text-xs font-medium text-slate-200"
+                      >
                         <Icon name="cube" className="w-4 h-4" />
-                        <span>Åpne 3D-visning og STL-eksport</span>
+                        <span>Åpne 3D-visning</span>
                       </button>
                       <button
                         onClick={exportJsonLayout}
@@ -1858,7 +3685,18 @@
                   {/* Høyre av/på-kontroller */}
                   <div className="flex items-center gap-4 text-xs">
                     <button
-                      onClick={() => setSnapToGrid((v) => !v)}
+                      onClick={() => {
+                        const nextSnap = !snapToGrid;
+                        setSnapToGrid(nextSnap);
+                        if (nextSnap) {
+                          commitItems(
+                            items.map((it) => ({
+                              ...it,
+                              ...snapItemPosition(it.xMm, it.yMm, it, board, mount, true),
+                            }))
+                          );
+                        }
+                      }}
                       title="Fest verktøy til hullene i rutenettet"
                       className="flex items-center gap-2 text-slate-200 hover:text-white whitespace-nowrap"
                     >
@@ -1907,7 +3745,7 @@
                 {/* VISNINGSOMRÅDE: 2D-PLANLEGGER ELLER 3D-VISNING */}
                 <div className="flex-1 relative min-h-0 overflow-hidden">
                   {viewMode === '3d' ? (
-                    <ThreeDInspectionView board={board} items={items} selectedId={selectedId} />
+                    <ThreeDInspectionView board={board} mount={mount} items={items} selectedId={selectedId} onNotifyStl={showStlNotification} />
                   ) : (
                     <div
                       ref={viewportRef}
@@ -1962,6 +3800,9 @@
                           {items.map((item) => {
                             const isSelected = item.id === selectedId;
                             const liftMm = item.liftOutMm || mount.clearanceMm || 38;
+                            const isPliers = isPliersType(item.type);
+                            const pf = isPliers ? normalizePliersConfig(item.type, item.config) : null;
+                            const handleR = Math.max(3.2, 4.2 / Math.max(0.5, zoom));
                             return (
                               <g
                                 key={item.id}
@@ -1973,7 +3814,7 @@
                                   <rect x={0} y={-liftMm} width={item.widthMm} height={liftMm} rx={3} fill="url(#liftOutHatch)" stroke="rgba(125,211,252,0.5)" strokeWidth={0.9} strokeDasharray="4 3" />
                                 )}
 
-                                <ToolIllustrationSVG item={item} showTool={showYourTools} />
+                                <ToolIllustrationSVG item={item} pitch={board.pitch} mount={mount} showTool={showYourTools} />
 
                                 <rect
                                   x={-2}
@@ -1985,6 +3826,35 @@
                                   stroke={isSelected ? '#93c5fd' : 'rgba(148,163,184,0.22)'}
                                   strokeWidth={isSelected ? 2 / Math.max(0.5, zoom) : 0.8}
                                 />
+
+                                {isSelected && isPliers && (
+                                  <g>
+                                    <g transform={`translate(${item.widthMm / 2}, -14)`}>
+                                      <rect x={-52} y={-13} width={104} height={17} rx={4} fill="#0d1829" stroke="#60a5fa" strokeWidth={1} />
+                                      <text x={0} y={-2} textAnchor="middle" fill="#e0f2fe" fontSize="8.5" fontWeight="600" fontFamily="JetBrains Mono, monospace">
+                                        {`${item.name} · ${pf.overallLengthMm.toFixed(1)} mm`}
+                                      </text>
+                                    </g>
+                                    {[
+                                      { key: 'nw', x: -2, y: -2, cursor: 'nwse-resize' },
+                                      { key: 'ne', x: item.widthMm + 2, y: -2, cursor: 'nesw-resize' },
+                                      { key: 'sw', x: -2, y: item.heightMm + 2, cursor: 'nesw-resize' },
+                                      { key: 'se', x: item.widthMm + 2, y: item.heightMm + 2, cursor: 'nwse-resize' },
+                                    ].map((hCorner) => (
+                                      <circle
+                                        key={hCorner.key}
+                                        cx={hCorner.x}
+                                        cy={hCorner.y}
+                                        r={handleR}
+                                        fill="#38bdf8"
+                                        stroke="#0b1523"
+                                        strokeWidth={1.2}
+                                        style={{ cursor: hCorner.cursor }}
+                                        onPointerDown={(e) => handleResizeHandlePointerDown(e, item, hCorner.key)}
+                                      />
+                                    ))}
+                                  </g>
+                                )}
 
                                 {!isSelected && (
                                   <g transform={`translate(${item.widthMm / 2}, -10)`}>
@@ -2049,7 +3919,14 @@
                         <div className="min-w-0">
                           <div className="text-sm font-semibold text-slate-100 truncate">{selectedItem.name}</div>
                           <div className="text-xs text-slate-400 font-mono tabular-nums truncate">
-                            {selectedItem.widthMm} × {selectedItem.heightMm} mm · Hull ({Math.round(selectedItem.xMm / board.pitch)}, {Math.round(selectedItem.yMm / board.pitch)})
+                            {(() => {
+                              const layout = computeHolderLayout(selectedItem, board.pitch, mount);
+                              const ref = layout.holes[0];
+                              const { rx, ry } = getRotatedLocalPoint(ref.lx, ref.ly, selectedItem.widthMm, selectedItem.heightMm, selectedItem.rotation);
+                              const c = Math.round((selectedItem.xMm + rx) / board.pitch - 0.5) + 1;
+                              const r = Math.round((selectedItem.yMm + ry) / board.pitch - 0.5) + 1;
+                              return `${selectedItem.widthMm} × ${selectedItem.heightMm} mm · ${layout.holes.length} skruehull · Rutenett (${c}, ${r})`;
+                            })()}
                           </div>
                         </div>
                       </div>
